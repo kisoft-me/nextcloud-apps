@@ -1,0 +1,9 @@
+{ "translations": {
+    "files" : "files",
+    "Name" : "Namn",
+    "Modified" : "Endra",
+    "Size" : "Storleik",
+    "Files" : "Filer",
+    "Group folders" : "Gruppemapper"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

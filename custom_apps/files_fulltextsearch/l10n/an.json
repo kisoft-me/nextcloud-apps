@@ -1,0 +1,8 @@
+{ "translations": {
+    "Name" : "Nombre",
+    "Modified" : "Modificau",
+    "Size" : "Grandario",
+    "Files" : "Archivos",
+    "Group folders" : "Grupo de carpetas"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

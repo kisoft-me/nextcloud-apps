@@ -1,0 +1,669 @@
+<?php
+
+/**
+ * SPDX-FileCopyrightText: 2022 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+/** @noinspection DuplicatedCode */
+
+namespace OCA\Tables\Service;
+
+use DateTime;
+
+use InvalidArgumentException;
+use OCA\Circles\Model\Circle;
+use OCA\Tables\AppInfo\Application;
+use OCA\Tables\Constants\ShareReceiverType;
+use OCA\Tables\Db\Context;
+use OCA\Tables\Db\ContextNavigation;
+use OCA\Tables\Db\ContextNavigationMapper;
+use OCA\Tables\Db\Share;
+use OCA\Tables\Db\ShareMapper;
+use OCA\Tables\Db\Table;
+use OCA\Tables\Db\TableMapper;
+use OCA\Tables\Db\View;
+use OCA\Tables\Db\ViewMapper;
+use OCA\Tables\Errors\InternalError;
+use OCA\Tables\Errors\NotFoundError;
+use OCA\Tables\Errors\PermissionError;
+use OCA\Tables\Helper\CircleHelper;
+use OCA\Tables\Helper\ConversionHelper;
+use OCA\Tables\Helper\GroupHelper;
+use OCA\Tables\Helper\UserHelper;
+use OCA\Tables\Model\Permissions;
+use OCA\Tables\ResponseDefinitions;
+use OCA\Tables\Service\ValueObject\ShareToken;
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\MultipleObjectsReturnedException;
+use OCP\AppFramework\Db\TTransactional;
+use OCP\DB\Exception;
+use OCP\IDBConnection;
+use OCP\IGroup;
+use OCP\IUserManager;
+use OCP\Security\IHasher;
+use OCP\Security\ISecureRandom;
+use Psr\Log\LoggerInterface;
+use Throwable;
+
+/**
+ * @psalm-import-type TablesShare from ResponseDefinitions
+ */
+class ShareService extends SuperService {
+	use TTransactional;
+
+	public function __construct(
+		PermissionsService $permissionsService,
+		LoggerInterface $logger,
+		?string $userId,
+		private readonly ShareMapper $mapper,
+		private readonly TableMapper $tableMapper,
+		private readonly ViewMapper $viewMapper,
+		private readonly UserHelper $userHelper,
+		private readonly GroupHelper $groupHelper,
+		private readonly CircleHelper $circleHelper,
+		private readonly ContextNavigationMapper $contextNavigationMapper,
+		private readonly IDBConnection $dbc,
+		private readonly ISecureRandom $secureRandom,
+		private readonly IUserManager $userManager,
+		private readonly IHasher $hasher,
+	) {
+		parent::__construct($logger, $userId, $permissionsService);
+	}
+
+	/**
+	 * @throws InternalError
+	 * @return Share[]
+	 */
+	public function findAll(string $nodeType, int $nodeId, ?string $userId = null, bool $enhanceShares = true): array {
+		$userId = $this->permissionsService->preCheckUserId($userId);
+
+		try {
+			$excluded = !$this->circleHelper->isCirclesEnabled() ? [ShareReceiverType::CIRCLE] : [];
+			$shares = $this->mapper->findAllSharesForNode($nodeType, $nodeId, $userId, $excluded);
+
+			return $enhanceShares ? $this->addReceiverDisplayNames($shares) : $shares;
+		} catch (Exception $e) {
+			$this->logger->error($e->getMessage());
+			throw new InternalError($e->getMessage());
+		}
+	}
+
+	/**
+	 * @param Share[] $items
+	 * @return TablesShare[]
+	 */
+	public function formatShares(array $items): array {
+		return array_map(static fn (Share $item) => $item->jsonSerialize(), $items);
+	}
+
+	public function formatForOutput(Share $share): Share {
+		if ($share->getPassword() === null || $share->getPassword() === '') {
+			return $share;
+		}
+		$clone = clone $share;
+		$clone->setPassword('yes');
+		return $clone;
+	}
+
+	/**
+	 * @param int $id
+	 * @return Share
+	 * @throws InternalError
+	 * @throws NotFoundError
+	 * @throws PermissionError
+	 */
+	public function find(int $id):Share {
+		try {
+			$item = $this->mapper->find($id);
+
+			if (!$this->circleHelper->isCirclesEnabled() && $item->getReceiverType() === ShareReceiverType::CIRCLE) {
+				throw new NotFoundError('Share not found - Circles app is disabled');
+			}
+
+			if (!$this->permissionsService->canReadShare($item)) {
+				throw new PermissionError('PermissionError: can not read share with id ' . $id);
+			}
+
+			return $item;
+		} catch (DoesNotExistException $e) {
+			$this->logger->warning($e->getMessage());
+			throw new NotFoundError($e->getMessage());
+		} catch (MultipleObjectsReturnedException|Exception $e) {
+			$this->logger->error($e->getMessage());
+			throw new InternalError($e->getMessage());
+		}
+	}
+
+	/**
+	 * @throws NotFoundError
+	 */
+	public function findByToken(ShareToken $token): Share {
+		try {
+			return $this->mapper->findByToken($token);
+		} catch (DoesNotExistException $e) {
+			throw new NotFoundError($e->getMessage());
+		}
+	}
+
+	/**
+	 * @throws InternalError
+	 */
+	public function createLinkShare(Table|View $node, ?string $password = null): Share {
+		for ($i = 0; $i < 3; $i++) {
+			// there is the theoretical chance, that an existing share token would be re-used,
+			// so we take up to three attempts to try to generate it.
+			try {
+				return $this->create(
+					$node->getId(),
+					ConversionHelper::object2String($node),
+					'',
+					ShareReceiverType::LINK,
+					true,
+					false,
+					false,
+					false,
+					false,
+					Application::NAV_ENTRY_MODE_HIDDEN,
+					$this->generateShareToken(),
+					$password,
+				);
+			} catch (InternalError $e) {
+			}
+		}
+		throw $e;
+	}
+
+	public function checkPassword(Share $share, string $password): bool {
+		return $this->hasher->verify($password, $share->getPassword());
+	}
+
+	public function hasLinkShare(Table|View $node): bool {
+		$type = ConversionHelper::object2String($node);
+		$nodeShares = $this->mapper->findAllSharesForNode($type, $node->getId());
+		foreach ($nodeShares as $share) {
+			if ($share->getReceiverType() === ShareReceiverType::LINK) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected function generateShareToken(): ShareToken {
+		$shareToken = $this->secureRandom->generate(ShareToken::MIN_LENGTH, ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_DIGITS);
+		return new ShareToken($shareToken);
+	}
+
+	/**
+	 * @param string|null $userId
+	 * @return array<int, View> Indexed by view id
+	 * @throws InternalError
+	 */
+	public function findViewsSharedWithMe(?string $userId = null): array {
+		return $this->findElementsSharedWithMe('view', $userId);
+	}
+
+	/**
+	 * @param string|null $userId
+	 * @return array<int, Table> Indexed by table id
+	 * @throws InternalError
+	 */
+	public function findTablesSharedWithMe(?string $userId = null): array {
+		return $this->findElementsSharedWithMe('table', $userId);
+	}
+
+	/**
+	 * @throws InternalError
+	 */
+	private function findElementsSharedWithMe(string $elementType = 'table', ?string $userId = null): array {
+		$userId = $this->permissionsService->preCheckUserId($userId);
+
+		$shares = [];
+		try {
+			$shares['user'] = $this->mapper->findAllSharesFor($elementType, [$userId], $userId);
+
+			$userGroups = $this->userHelper->getGroupsForUser($userId);
+			$userGroupIds = array_map(static fn (IGroup $group) => $group->getGid(), $userGroups);
+			$shares['groups'] = $this->mapper->findAllSharesFor($elementType, $userGroupIds, $userId, ShareReceiverType::GROUP);
+
+			$userCircles = $this->circleHelper->getUserCircles($userId);
+			$userCircleIds = array_map(static fn (Circle $circle) => $circle->getSingleId(), $userCircles);
+			$shares['circles'] = $this->mapper->findAllSharesFor($elementType, $userCircleIds, $userId, ShareReceiverType::CIRCLE);
+		} catch (Throwable $e) {
+			throw new InternalError($e->getMessage(), previous: $e);
+		}
+
+		$elementIds = [];
+		foreach (array_merge($shares['user'], $shares['groups'], $shares['circles']) as $share) {
+			/** @var Share $share */
+			$elementIds[$share->getNodeId()] = true;
+		}
+		$elementIds = array_keys($elementIds);
+
+		if ($elementType === 'table') {
+			return $this->tableMapper->findMany($elementIds);
+		}
+
+		if ($elementType === 'view') {
+			return $this->viewMapper->findMany($elementIds);
+		}
+
+		throw new InternalError('Cannot find element of type ' . $elementType);
+	}
+
+	/**
+	 * @param int $elementId
+	 * @param 'table'|'view' $elementType
+	 * @param string|null $userId
+	 * @return Permissions
+	 * @throws NotFoundError|InternalError
+	 */
+	public function getSharedPermissionsIfSharedWithMe(int $elementId, string $elementType = 'table', ?string $userId = null): Permissions {
+		try {
+			$userId = $this->permissionsService->preCheckUserId($userId);
+		} catch (InternalError $e) {
+			$this->logger->warning('Could not pre check user: ' . $e->getMessage() . ' Permission denied.');
+			return new Permissions();
+		}
+		return $this->permissionsService->getSharedPermissionsIfSharedWithMe($elementId, $elementType, $userId);
+	}
+
+	/**
+	 * @throws InternalError
+	 */
+	public function create(int $nodeId, string $nodeType, string $receiver, string $receiverType, bool $permissionRead, bool $permissionCreate, bool $permissionUpdate, bool $permissionDelete, bool $permissionManage, int $displayMode, ?ShareToken $shareToken = null, ?string $password = null, ?string $sender = null): Share {
+		$sender = $sender ?? $this->userId;
+		if (!$sender) {
+			$e = new \Exception('No user given.');
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+		}
+
+		$time = new DateTime();
+		$item = new Share();
+		$item->setSender($sender);
+		$item->setReceiver($receiver);
+		$item->setReceiverType($receiverType);
+		$item->setNodeId($nodeId);
+		$item->setNodeType($nodeType);
+		$item->setPermissionRead($permissionRead);
+		$item->setPermissionCreate($permissionCreate);
+		$item->setPermissionUpdate($permissionUpdate);
+		$item->setPermissionDelete($permissionDelete);
+		$item->setPermissionManage($permissionManage);
+		$item->setCreatedAt($time->format('Y-m-d H:i:s'));
+		$item->setLastEditAt($time->format('Y-m-d H:i:s'));
+
+		if ($shareToken) {
+			$item->setToken((string)$shareToken);
+		}
+		if ($password) {
+			$item->setPassword($this->hasher->hash($password));
+		}
+
+		try {
+			$newShare = $this->mapper->insert($item);
+		} catch (Exception $e) {
+			$this->logger->error($e->getMessage());
+			throw new InternalError($e->getMessage());
+		}
+
+		if ($nodeType === 'context') {
+			// set the default visibility of the nav bar item for Application shares
+			$navigationItem = new ContextNavigation();
+			$navigationItem->setShareId($item->getId());
+			$navigationItem->setUserId('');
+			$navigationItem->setDisplayMode($displayMode);
+
+			try {
+				$this->contextNavigationMapper->insert($navigationItem);
+			} catch (Exception $e) {
+				$this->logger->error($e->getMessage());
+				throw new InternalError($e->getMessage());
+			}
+		}
+
+		return $this->addReceiverDisplayName($newShare);
+	}
+
+	/**
+	 * @param int $id
+	 * @param string $permission
+	 * @param bool $value
+	 * @return Share
+	 * @throws InternalError
+	 * @throws NotFoundError
+	 * @throws PermissionError
+	 */
+	public function updatePermission(int $id, string $permission, bool $value): Share {
+		try {
+			$item = $this->mapper->find($id);
+		} catch (DoesNotExistException $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new NotFoundError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+		} catch (MultipleObjectsReturnedException|Exception $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+		}
+
+		// security
+		if (!$this->permissionsService->canManageElementById($item->getNodeId(), $item->getNodeType())) {
+			throw new PermissionError('PermissionError: can not update share with id ' . $id);
+		}
+
+		$time = new DateTime();
+
+		if ($permission === 'read') {
+			$item->setPermissionRead($value);
+		}
+
+		if ($permission === 'create') {
+			$item->setPermissionCreate($value);
+		}
+
+		if ($permission === 'update') {
+			$item->setPermissionUpdate($value);
+		}
+
+		if ($permission === 'delete') {
+			$item->setPermissionDelete($value);
+		}
+
+		if ($permission === 'manage') {
+			$item->setPermissionManage($value);
+		}
+
+		$item->setLastEditAt($time->format('Y-m-d H:i:s'));
+
+		try {
+			$share = $this->mapper->update($item);
+		} catch (Exception $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+		}
+		return $this->addReceiverDisplayName($share);
+	}
+
+	/**
+	 * @throws InternalError|PermissionError|NotFoundError
+	 */
+	public function updateDisplayMode(int $shareId, int $displayMode, string $userId): ContextNavigation {
+		try {
+			$item = $this->mapper->find($shareId);
+
+			if ($item->getNodeType() !== 'context') {
+				// Contexts-only property
+				throw new InvalidArgumentException(get_class($this) . ' - ' . __FUNCTION__ . ': nav bar display mode can be set for shared contexts only');
+			}
+
+			if ($userId === '') {
+				// setting default display mode requires manage permissions
+				if (!$this->permissionsService->canManageContextById($item->getNodeId())) {
+					throw new PermissionError(sprintf('PermissionError: can not update share with id %d', $shareId));
+				}
+			} else {
+				// setting user display mode override only requires access
+				if (!$this->permissionsService->canAccessContextById($item->getNodeId(), $userId)) {
+					throw new PermissionError(sprintf('PermissionError: can not update share with id %d', $shareId));
+				}
+			}
+
+			return $this->contextNavigationMapper->setDisplayModeByShareId($shareId, $displayMode, $userId);
+		} catch (DoesNotExistException $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new NotFoundError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+		} catch (Exception|MultipleObjectsReturnedException $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+		}
+	}
+
+	/**
+	 * @param int $id
+	 * @return Share
+	 * @throws InternalError
+	 * @throws NotFoundError
+	 * @throws PermissionError
+	 */
+	public function delete(int $id): Share {
+		try {
+			$item = $this->mapper->find($id);
+		} catch (DoesNotExistException $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new NotFoundError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+		} catch (MultipleObjectsReturnedException|Exception $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+		}
+
+		// security
+		if (!$this->permissionsService->canManageElementById($item->getNodeId(), $item->getNodeType())) {
+			throw new PermissionError('PermissionError: can not delete share with id ' . $id);
+		}
+
+		try {
+			$this->mapper->delete($item);
+			if ($item->getNodeType() === 'context') {
+				$this->contextNavigationMapper->deleteByShareId($item->getId());
+			}
+		} catch (Exception $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+		}
+		return $this->addReceiverDisplayName($item);
+	}
+
+	/**
+	 * @param Share $share
+	 * @return Share
+	 */
+	private function addReceiverDisplayName(Share $share):Share {
+		if ($share->getReceiverType() === ShareReceiverType::LINK) {
+			$share->setReceiverDisplayName('');
+			return $share;
+		}
+
+		if ($share->getReceiverType() === ShareReceiverType::USER) {
+			$share->setReceiverDisplayName($this->userHelper->getUserDisplayName($share->getReceiver()));
+		} elseif ($share->getReceiverType() === ShareReceiverType::GROUP) {
+			$share->setReceiverDisplayName($this->groupHelper->getGroupDisplayName($share->getReceiver()));
+		} elseif ($share->getReceiverType() === ShareReceiverType::CIRCLE) {
+			if ($this->circleHelper->isCirclesEnabled()) {
+				$share->setReceiverDisplayName($this->circleHelper->getCircleDisplayName($share->getReceiver(), $this->userId));
+			} else {
+				$this->logger->info(
+					'Could not get display name for receiver type {type}',
+					['type' => $share->getReceiverType()]
+				);
+				$share->setReceiverDisplayName($share->getReceiver());
+			}
+		} else {
+			$this->logger->info('can not use receiver type to get display name');
+			$share->setReceiverDisplayName($share->getReceiver());
+		}
+		return $share;
+	}
+
+	private function addReceiverDisplayNames(array $shares): array {
+		foreach ($shares as $share) {
+			$this->addReceiverDisplayName($share);
+		}
+		return $shares;
+	}
+
+	public function deleteAllForTable(Table $table):void {
+		try {
+			$this->mapper->deleteByNode($table->getId(), 'table');
+		} catch (Exception) {
+			$this->logger->error('something went wrong while deleting shares for table: ' . $table->getId());
+		}
+	}
+
+	public function deleteAllForView(View $view):void {
+		try {
+			$this->mapper->deleteByNode($view->getId(), 'view');
+		} catch (Exception) {
+			$this->logger->error('something went wrong while deleting shares for view: ' . $view->getId());
+		}
+	}
+
+	public function deleteAllForContext(Context $context): void {
+		try {
+			$this->atomic(function () use ($context) {
+				$shares = $this->mapper->findAllSharesForNode('context', $context->getId(), $this->userId);
+				foreach ($shares as $share) {
+					$this->contextNavigationMapper->deleteByShareId($share->getId());
+				}
+				$this->mapper->deleteByNode($context->getId(), 'context');
+			}, $this->dbc);
+		} catch (Exception) {
+			$this->logger->error('something went wrong while deleting shares for context: ' . $context->getId());
+		}
+	}
+
+	/**
+	 * @throws InternalError
+	 * @return Share[]
+	 */
+	public function changeSenderForNode(string $nodeType, int $nodeId, string $newOwnerUserId, ?string $userId = null): array {
+		$sharesForTable = $this->findAll($nodeType, $nodeId, $userId, false);
+		$newShares = [];
+
+		foreach ($sharesForTable as $share) {
+			$share->setSender($newOwnerUserId);
+			try {
+				$this->mapper->update($share);
+			} catch (Exception $e) {
+				$this->logger->warning('Could not update share to change the sender: ' . $e->getMessage(), ['exception' => $e]);
+				throw new InternalError('Could not update share to change the sender');
+			}
+			$newShares[] = $share;
+		}
+		return $newShares;
+	}
+
+	/**
+	 * @throws InternalError
+	 */
+	public function changeReceiverForNode(string $nodeType, int $nodeId, string $newOwnerUserId, string $userId, string $sender): void {
+		try {
+			$this->mapper->changeReceiverForNode($nodeType, $nodeId, $newOwnerUserId, $userId, $sender);
+		} catch (Exception $e) {
+			$this->logger->warning('Could not update share to change the receiver: ' . $e->getMessage(), ['exception' => $e]);
+			throw new InternalError('Could not update share to change the receiver');
+		}
+	}
+
+	/**
+	 * @throws InternalError
+	 */
+	public function transferSharesForContext(int $contextId, string $newOwnerId, string $oldOwnerId): void {
+		try {
+			$newOwnerShare = $this->mapper->findShareForNode($contextId, 'context', $newOwnerId, 'user');
+			$oldOwnerSelfShare = $this->mapper->findShareForNode($contextId, 'context', $oldOwnerId, 'user');
+
+			$this->changeSenderForNode('context', $contextId, $newOwnerId, $oldOwnerId);
+
+			if ($newOwnerShare) {
+				if ($oldOwnerSelfShare) {
+					$this->contextNavigationMapper->deleteByShareId($oldOwnerSelfShare->getId());
+					$this->mapper->delete($oldOwnerSelfShare);
+				}
+				return;
+			}
+
+			$this->changeReceiverForNode('context', $contextId, $newOwnerId, $oldOwnerId, $newOwnerId);
+			if ($oldOwnerSelfShare) {
+				$this->contextNavigationMapper->deleteByShareIdAndUserId($oldOwnerSelfShare->getId(), $oldOwnerId);
+			}
+		} catch (Exception $e) {
+			$this->logger->error('Failed to transfer shares for context: ' . $e->getMessage(), ['exception' => $e]);
+			throw new InternalError('Failed to transfer shares for context');
+		}
+	}
+
+	/**
+	 * @throws InternalError
+	 * @return string[]
+	 */
+	public function findSharedWithUserIds(int $elementId, string $elementType): array {
+		try {
+			$shares = $this->mapper->findAllSharesForNode($elementType, $elementId, '');
+			$sharedWithUserIds = [];
+
+			foreach ($shares as $share) {
+				if ($share->getReceiverType() === ShareReceiverType::USER) {
+					$sharedWithUserIds[$share->getReceiver()] = 1;
+				}
+				if ($share->getReceiverType() === ShareReceiverType::CIRCLE && $this->circleHelper->isCirclesEnabled()) {
+					$userIds = $this->circleHelper->getUserIdsInCircle($share->getReceiver());
+					$sharedWithUserIds += array_fill_keys($userIds, 1);
+				}
+				if ($share->getReceiverType() === ShareReceiverType::GROUP) {
+					$userIds = $this->groupHelper->getUserIdsInGroup($share->getReceiver());
+					$sharedWithUserIds += array_fill_keys($userIds, 1);
+				}
+			}
+
+			return array_keys($sharedWithUserIds);
+		} catch (Exception $e) {
+			$this->logger->error('Could not find shared with users: ' . $e->getMessage(), ['exception' => $e]);
+			throw new InternalError('Could not find shared with users');
+		}
+	}
+
+	/**
+	 * @param int $nodeId
+	 * @param array $share
+	 * @param string $userId
+	 */
+	public function importShare(int $nodeId, array $share, string $userId): void {
+		$existingReceiver = $this->userManager->userExists($share['receiver']);
+
+		if (!$existingReceiver) {
+			return;
+		}
+
+		$nodeType = $share['nodeType'] ?? 'table';
+		$receiver = $share['receiver'];
+		$receiverType = $share['receiverType'] ?? '';
+		$permissionRead = $share['permissionRead'] ?? false;
+		$permissionCreate = $share['permissionCreate'] ?? false;
+		$permissionUpdate = $share['permissionUpdate'] ?? false;
+		$permissionDelete = $share['permissionDelete'] ?? false;
+		$permissionManage = $share['permissionManage'] ?? false;
+		$displayMode = $share['displayMode'] ?? 0;
+		$password = $share['password'] ?? null;
+		$sender = $userId;
+		$shareToken = null;
+
+		if (!empty($share['token'])) {
+			try {
+				$shareToken = new ShareToken($share['token']);
+			} catch (Throwable $e) {
+				$this->logger->warning('Invalid share token during import: ' . $e->getMessage(), ['token' => $share['token'], 'exception' => $e]);
+			}
+		}
+
+		try {
+			$this->create(
+				$nodeId,
+				$nodeType,
+				$receiver,
+				$receiverType,
+				$permissionRead,
+				$permissionCreate,
+				$permissionUpdate,
+				$permissionDelete,
+				$permissionManage,
+				$displayMode,
+				$shareToken,
+				$password,
+				$sender
+			);
+		} catch (Throwable $e) {
+			$this->logger->error('Failed to import share: ' . $e->getMessage(), ['exception' => $e, 'share' => $share]);
+		}
+	}
+
+}

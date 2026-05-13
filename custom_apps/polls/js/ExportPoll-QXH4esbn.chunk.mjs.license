@@ -1,0 +1,21 @@
+SPDX-License-Identifier: AGPL-3.0
+SPDX-License-Identifier: Apache-2.0
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: Eli Grey <me@eligrey.com>
+SPDX-FileCopyrightText: Rob Cresswell <robcresswell@pm.me>
+SPDX-FileCopyrightText: polls developers
+SPDX-FileCopyrightText: sheetjs
+
+This file is generated from multiple sources. Included packages:
+- file-saver
+	- version: 2.0.5
+	- license: MIT
+- polls
+	- version: 8.6.3
+	- license: AGPL-3.0
+- vue-material-design-icons
+	- version: 5.3.1
+	- license: MIT
+- xlsx
+	- version: 0.20.3
+	- license: Apache-2.0

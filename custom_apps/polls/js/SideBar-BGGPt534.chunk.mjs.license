@@ -1,0 +1,28 @@
+SPDX-License-Identifier: AGPL-3.0
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: Anthony Fu <https://github.com/antfu>
+SPDX-FileCopyrightText: Rob Cresswell <robcresswell@pm.me>
+SPDX-FileCopyrightText: Ryan Day <soldair@gmail.com>
+SPDX-FileCopyrightText: dijkstrajs developers
+SPDX-FileCopyrightText: polls developers
+SPDX-FileCopyrightText: sortablejs developers
+
+This file is generated from multiple sources. Included packages:
+- @vueuse/integrations
+	- version: 14.1.0
+	- license: MIT
+- dijkstrajs
+	- version: 1.0.3
+	- license: MIT
+- polls
+	- version: 8.6.3
+	- license: AGPL-3.0
+- qrcode
+	- version: 1.5.4
+	- license: MIT
+- sortablejs
+	- version: 1.15.6
+	- license: MIT
+- vue-material-design-icons
+	- version: 5.3.1
+	- license: MIT

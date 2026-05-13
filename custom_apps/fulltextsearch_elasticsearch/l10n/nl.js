@@ -1,0 +1,19 @@
+OC.L10N.register(
+    "fulltextsearch_elasticsearch",
+    {
+    "Full text search - Elasticsearch Platform" : "Volledige tekst zoekfuctie - Elasticsearch Platform",
+    "Index using ElasticSearch" : "Index via ElasticSearch",
+    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Uitbreiding naar de _Full text search_ app om te communiceren met ElasticSearch.",
+    "Elastic Search" : "Elastic Search",
+    "Address of the Servlet" : "Adres van de Servlet",
+    "Include your credential in case authentication is required." : "Als authenticatie nodig is, inloggegevens toevoegen.",
+    "Index" : "Index",
+    "Name of your index." : "Naam van jouw index.",
+    "[Advanced] Analyzer tokenizer" : "[Geavanceerd] Analyzer tokenizer",
+    ">tbody" : ">tbody",
+    "<script>" : "<script>",
+    "<div>" : "<div>",
+    "object" : "object",
+    "_" : "_"
+},
+"nplurals=2; plural=(n != 1);");

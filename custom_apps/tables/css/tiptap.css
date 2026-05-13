@@ -1,0 +1,38 @@
+/**
+ * SPDX-FileCopyrightText: 2021 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+.tables-tiptap-wrapper div[contenteditable=true] {
+	width: 100% !important;
+	min-height: 150px;
+}
+
+.tables-tiptap-wrapper .is-active {
+	background-color: var(--color-primary) !important;
+}
+
+.tables-tiptap-wrapper {
+	width: 100%;
+}
+
+.tables-tiptap-wrapper .menuBar button {
+	position: relative;
+	width: 35px;
+	height: 35px;
+	margin: 0;
+	background-size: 16px;
+	border: 0;
+	background-color: transparent;
+	opacity: .5;
+	color: var(--color-main-text);
+	background-position: center center;
+	vertical-align: top;
+}
+
+.tables-tiptap-wrapper .menuBar button:hover, .tables-tiptap-wrapper .menuBar button:focus, .tables-tiptap-wrapper .menuBar button:active {
+	background-color: var(--color-background-dark);
+}
+
+.tables-tiptap-wrapper em, .tabulator-cell em {
+	font-style: italic;
+}

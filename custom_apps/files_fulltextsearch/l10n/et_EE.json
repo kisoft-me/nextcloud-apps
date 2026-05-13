@@ -1,0 +1,27 @@
+{ "translations": {
+    "files" : "files",
+    "Go to folder" : "Mine kausta",
+    "Open folder" : "Ava kaust",
+    "Name" : "Nimi",
+    "Modified" : "Muudetud",
+    "Size" : "Suurus",
+    "Could not copy \"{file}\", target exists" : "\"{file}\" kopeerimine ebaõnnestus, sihtfail on juba olemas",
+    "Could not copy \"{file}\"" : "\"{file}\" kopeerimine ebaõnnestus",
+    "Copied {origin} inside {destination}" : "Kopeeris {origin} {destination} sisse",
+    "Copied {origin} and {nbfiles} other files inside {destination}" : "Kopeeris {origin} ja {nbfiles} teist faili {destination} sisse",
+    "Files" : "Failid",
+    "Local files" : "Kohalikud kaustad",
+    "External files" : "Välised failid",
+    "Group folders" : "Grupikaustad",
+    "Extension" : "Laiend",
+    "Index the content of your files" : "Indekseeri oma failide sisu",
+    "Sources" : "llikad",
+    "Index path only" : "Indekseeri vaid asukoht",
+    "Index path and content" : "Indekseeri asukoht ja sisu",
+    "Do not index path nor content" : "Ära indekseeri asukohta ega sisu",
+    "Maximum file size" : "Faili suurim lubatud suurus",
+    "Results" : "Tulemused",
+    "Open Files" : "Ava failid",
+    "Directly from search results." : "Otse otsingutulemustest."
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}
