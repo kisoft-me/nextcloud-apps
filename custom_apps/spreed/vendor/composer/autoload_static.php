@@ -550,6 +550,7 @@ class ComposerStaticInitTalk
         'OCA\\Talk\\Service\\MetricsService' => __DIR__ . '/../..' . '/lib/Service/MetricsService.php',
         'OCA\\Talk\\Service\\NoteToSelfService' => __DIR__ . '/../..' . '/lib/Service/NoteToSelfService.php',
         'OCA\\Talk\\Service\\ParticipantService' => __DIR__ . '/../..' . '/lib/Service/ParticipantService.php',
+        'OCA\\Talk\\Service\\PhoneNumberValidation' => __DIR__ . '/../..' . '/lib/Service/PhoneNumberValidation.php',
         'OCA\\Talk\\Service\\PhoneService' => __DIR__ . '/../..' . '/lib/Service/PhoneService.php',
         'OCA\\Talk\\Service\\PollService' => __DIR__ . '/../..' . '/lib/Service/PollService.php',
         'OCA\\Talk\\Service\\ProxyCacheMessageService' => __DIR__ . '/../..' . '/lib/Service/ProxyCacheMessageService.php',

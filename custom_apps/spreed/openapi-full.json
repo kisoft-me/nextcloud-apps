@@ -2123,13 +2123,11 @@
                 "type": "object",
                 "required": [
                     "federation",
-                    "helloAuthParams",
                     "hideWarning",
                     "server",
                     "signalingMode",
                     "sipDialinInfo",
                     "stunservers",
-                    "ticket",
                     "turnservers",
                     "userId"
                 ],
@@ -10359,7 +10357,7 @@
                         }
                     },
                     "404": {
-                        "description": "Message not found",
+                        "description": "No reminder found or message not found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -24368,6 +24366,22 @@
                         "name": "talk-recording-checksum",
                         "in": "header",
                         "description": "Checksum over the request body to verify authenticity from the recording backend",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "talk-sipbridge-random",
+                        "in": "header",
+                        "description": "Random seed used to generate the request checksum",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "talk-sipbridge-checksum",
+                        "in": "header",
+                        "description": "Checksum over the room token to verify authenticity from the SIP bridge",
                         "schema": {
                             "type": "string"
                         }

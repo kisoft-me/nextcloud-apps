@@ -41,6 +41,7 @@ use OCP\DB\Exception;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IDBConnection;
 use OCP\IRequest;
+use OCP\ISession;
 use OCP\IUser;
 use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
@@ -59,6 +60,7 @@ class SignalingController extends OCSController {
 		IRequest $request,
 		private Config $talkConfig,
 		private \OCA\Talk\Signaling\Manager $signalingManager,
+		private ISession $serverSession,
 		private TalkSession $session,
 		private Manager $manager,
 		private ParticipantService $participantService,
@@ -102,6 +104,28 @@ class SignalingController extends OCSController {
 	}
 
 	/**
+	 * Check if the current request is coming from an allowed SIP bridge.
+	 *
+	 * The bridge sends the custom header "Talk-SIPBridge-Random" containing
+	 * at least 32 bytes random data, and the header "Talk-SIPBridge-Checksum",
+	 * which is the SHA256-HMAC of the random data and the room token,
+	 * calculated with the shared secret from the configuration.
+	 *
+	 * @param string $data Room token (or empty string when no token is present)
+	 * @return bool
+	 */
+	private function validateSIPBridgeRequest(string $data): bool {
+		$random = $this->request->getHeader('talk-sipbridge-random');
+		$checksum = $this->request->getHeader('talk-sipbridge-checksum');
+		$secret = $this->talkConfig->getSIPSharedSecret();
+		try {
+			return $this->checksumVerificationService->validateRequest($random, $checksum, $secret, $data);
+		} catch (UnauthorizedException) {
+			return false;
+		}
+	}
+
+	/**
 	 * Get the signaling settings
 	 *
 	 * @param string $token Token of the room
@@ -114,15 +138,19 @@ class SignalingController extends OCSController {
 	#[PublicPage]
 	#[BruteForceProtection(action: 'talkRoomToken')]
 	#[BruteForceProtection(action: 'talkRecordingSecret')]
+	#[BruteForceProtection(action: 'talkSipBridgeSecret')]
 	#[BruteForceProtection(action: 'talkFederationAccess')]
 	#[OpenAPI(tags: ['internal_signaling', 'external_signaling'])]
 	#[RequestHeader(name: 'talk-recording-random', description: 'Random seed used to generate the request checksum', indirect: true)]
 	#[RequestHeader(name: 'talk-recording-checksum', description: 'Checksum over the request body to verify authenticity from the recording backend', indirect: true)]
+	#[RequestHeader(name: 'talk-sipbridge-random', description: 'Random seed used to generate the request checksum', indirect: true)]
+	#[RequestHeader(name: 'talk-sipbridge-checksum', description: 'Checksum over the room token to verify authenticity from the SIP bridge', indirect: true)]
 	#[ApiRoute(verb: 'GET', url: '/api/{apiVersion}/signaling/settings', requirements: [
 		'apiVersion' => '(v3)',
 	])]
 	public function getSettings(string $token = ''): DataResponse {
 		$isRecordingRequest = false;
+		$isSIPBridgeRequest = false;
 
 		if (!empty($this->request->getHeader('talk-recording-random')) || !empty($this->request->getHeader('talk-recording-checksum'))) {
 			if (!$this->validateRecordingBackendRequest('')) {
@@ -131,6 +159,17 @@ class SignalingController extends OCSController {
 				return $response;
 			}
 
+			$isRecordingRequest = true;
+		} elseif (!empty($this->request->getHeader('talk-sipbridge-random')) || !empty($this->request->getHeader('talk-sipbridge-checksum'))) {
+			if (!$this->validateSIPBridgeRequest($token)) {
+				$response = new DataResponse(null, Http::STATUS_UNAUTHORIZED);
+				$response->throttle(['action' => 'talkSipBridgeSecret']);
+				return $response;
+			}
+
+			$isSIPBridgeRequest = true;
+		} elseif ($this->serverSession->get('app_api') === true) {
+			// Live transcription ex-app
 			$isRecordingRequest = true;
 		}
 
@@ -156,9 +195,12 @@ class SignalingController extends OCSController {
 				$this->federationAuthenticator->authenticated($room, $participant);
 			} elseif ($token !== '') {
 				$room = $this->manager->getRoomForUserByToken($token, $this->userId);
-			} else {
-				// FIXME Soft-fail for legacy support in mobile apps
+			} elseif ($this->userId !== null || $isRecordingRequest || $isSIPBridgeRequest) {
+				// Mobile clients and admin setup check use the neutral point
+				// Same for live-transcription and SIP bridge
 				$room = null;
+			} else {
+				throw new RoomNotFoundException();
 			}
 		} catch (RoomNotFoundException|ParticipantNotFoundException) {
 			$response = new DataResponse(null, Http::STATUS_NOT_FOUND);
@@ -208,29 +250,33 @@ class SignalingController extends OCSController {
 		$signalingMode = $this->talkConfig->getSignalingMode();
 		$signaling = $this->signalingManager->getSignalingServerLinkForConversation($room);
 
-		$helloAuthParams20UserId = $isTalkFederation ? null : $this->userId;
-		$helloAuthParams20CloudId = $isTalkFederation ? $this->federationAuthenticator->getCloudId() : null;
-		$helloAuthParams = [
-			'1.0' => [
-				'userid' => $this->userId,
-				'ticket' => $this->talkConfig->getSignalingTicket(Config::SIGNALING_TICKET_V1, $this->userId),
-			],
-			'2.0' => [
-				'token' => $this->talkConfig->getSignalingTicket(Config::SIGNALING_TICKET_V2, $helloAuthParams20UserId, $helloAuthParams20CloudId),
-			],
-		];
 		$data = [
 			'signalingMode' => $signalingMode,
 			'userId' => $this->userId,
 			'hideWarning' => $signaling !== '' || $this->talkConfig->getHideSignalingWarning(),
 			'server' => $signaling,
-			'ticket' => $helloAuthParams['1.0']['ticket'],
-			'helloAuthParams' => $helloAuthParams,
 			'federation' => $this->getFederationSettings($room),
 			'stunservers' => $stun,
 			'turnservers' => $turn,
 			'sipDialinInfo' => $this->talkConfig->isSIPConfigured() ? $this->talkConfig->getDialInInfo() : '',
 		];
+
+		if ($signalingMode !== Config::SIGNALING_INTERNAL) {
+			$helloAuthParams20UserId = $isTalkFederation ? null : $this->userId;
+			$helloAuthParams20CloudId = $isTalkFederation ? $this->federationAuthenticator->getCloudId() : null;
+			$helloAuthParams = [
+				'1.0' => [
+					'userid' => $this->userId,
+					'ticket' => $this->talkConfig->getSignalingTicket(Config::SIGNALING_TICKET_V1, $this->userId),
+				],
+				'2.0' => [
+					'token' => $this->talkConfig->getSignalingTicket(Config::SIGNALING_TICKET_V2, $helloAuthParams20UserId, $helloAuthParams20CloudId),
+				],
+			];
+
+			$data['ticket'] = $helloAuthParams['1.0']['ticket'];
+			$data['helloAuthParams'] = $helloAuthParams;
+		}
 
 		return new DataResponse($data);
 	}
@@ -389,17 +435,20 @@ class SignalingController extends OCSController {
 					}
 					$decodedMessage['from'] = $message['sessionId'];
 
-					if ($decodedMessage['type'] === 'control') {
-						$room = $this->manager->getRoomForSession($this->userId, $message['sessionId']);
-						$participant = $this->participantService->getParticipantBySession($room, $message['sessionId']);
+					$room = $this->manager->getRoomForSession($this->userId, $message['sessionId']);
+					$participant = $this->participantService->getParticipantBySession($room, $message['sessionId']);
+					try {
+						$this->participantService->getParticipantBySession($room, $decodedMessage['to']);
+					} catch (ParticipantNotFoundException) {
+						break;
+					}
 
+
+					if ($decodedMessage['type'] === 'control') {
 						if (!$participant->hasModeratorPermissions(false)) {
 							break;
 						}
 					} elseif ($decodedMessage['type'] === 'offer' || $decodedMessage['type'] === 'answer') {
-						$room = $this->manager->getRoomForSession($this->userId, $message['sessionId']);
-						$participant = $this->participantService->getParticipantBySession($room, $message['sessionId']);
-
 						if (!($participant->getPermissions() & Attendee::PERMISSIONS_PUBLISH_AUDIO) && $decodedMessage['roomType'] === 'video'
 								&& $this->isTryingToPublishMedia($decodedMessage['payload']['sdp'], 'audio')) {
 							break;

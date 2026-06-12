@@ -518,6 +518,7 @@ return array(
     'OCA\\Talk\\Service\\MetricsService' => $baseDir . '/lib/Service/MetricsService.php',
     'OCA\\Talk\\Service\\NoteToSelfService' => $baseDir . '/lib/Service/NoteToSelfService.php',
     'OCA\\Talk\\Service\\ParticipantService' => $baseDir . '/lib/Service/ParticipantService.php',
+    'OCA\\Talk\\Service\\PhoneNumberValidation' => $baseDir . '/lib/Service/PhoneNumberValidation.php',
     'OCA\\Talk\\Service\\PhoneService' => $baseDir . '/lib/Service/PhoneService.php',
     'OCA\\Talk\\Service\\PollService' => $baseDir . '/lib/Service/PollService.php',
     'OCA\\Talk\\Service\\ProxyCacheMessageService' => $baseDir . '/lib/Service/ProxyCacheMessageService.php',
