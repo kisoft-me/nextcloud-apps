@@ -45,6 +45,8 @@ class PermissionsService {
 
 	protected bool $isCli = false;
 
+	private bool $isPublicContext = false;
+
 	private ContextMapper $contextMapper;
 
 	public function __construct(
@@ -68,7 +70,6 @@ class PermissionsService {
 		$this->contextMapper = $contextMapper;
 		$this->circleHelper = $circleHelper;
 	}
-
 
 	/**
 	 * @param string|null $userId
@@ -96,7 +97,6 @@ class PermissionsService {
 		}
 		return $userId;
 	}
-
 
 	// ***** TABLES permissions *****
 
@@ -140,6 +140,30 @@ class PermissionsService {
 		}
 		if ($nodeType === Application::NODE_TYPE_VIEW) {
 			return $this->canManageViewById($nodeId, $userId);
+		}
+
+		return false;
+	}
+
+	public function isNodeOwnerById(int $nodeType, int $nodeId, ?string $userId = null): bool {
+		try {
+			$userId = $this->preCheckUserId($userId, false);
+		} catch (InternalError) {
+			return false;
+		}
+
+		try {
+			if ($nodeType === Application::NODE_TYPE_TABLE) {
+				$table = $this->tableMapper->find($nodeId);
+				return $table->getOwnership() === $userId;
+			}
+
+			if ($nodeType === Application::NODE_TYPE_VIEW) {
+				$view = $this->viewMapper->find($nodeId);
+				return $view->getOwnership() === $userId;
+			}
+		} catch (DoesNotExistException|MultipleObjectsReturnedException|Exception) {
+			return false;
 		}
 
 		return false;
@@ -252,7 +276,6 @@ class PermissionsService {
 		return $this->canManageView($view, $userId);
 	}
 
-
 	// ***** COLUMNS permissions *****
 
 	public function canReadColumnsByViewId(int $viewId, ?string $userId = null): bool {
@@ -292,9 +315,7 @@ class PermissionsService {
 		return $this->canManageTableById($tableId, $userId);
 	}
 
-
 	// ***** ROWS permissions *****
-
 
 	/**
 	 * @param int $elementId
@@ -371,16 +392,14 @@ class PermissionsService {
 			return false;
 		}
 		return $this->checkPermissionById($tableId, 'table', 'delete', $userId);
-
 	}
-
 
 	// ***** SHARE permissions *****
 
 	public function canReadShare(Share $share, ?string $userId = null): bool {
 		try {
 			$userId = $this->preCheckUserId($userId);
-		} catch (InternalError $e) {
+		} catch (InternalError) {
 			$this->logger->warning('Cannot pre check the user id, permission denied');
 			return false;
 		}
@@ -392,11 +411,10 @@ class PermissionsService {
 			if ($this->canManageElementById($share->getNodeId(), $share->getNodeType())) {
 				return true;
 			}
-		} catch (InternalError $e) {
+		} catch (InternalError) {
 			$this->logger->warning('Cannot check manage permissions, permission denied');
 			return false;
 		}
-
 
 		if ($share->getSender() === $userId) {
 			return true;
@@ -410,11 +428,11 @@ class PermissionsService {
 			try {
 				$userGroups = $this->userHelper->getGroupsForUser($userId);
 				foreach ($userGroups as $userGroup) {
-					if ($userGroup->getDisplayName() === $share->getReceiver()) {
+					if ($userGroup->getGID() === $share->getReceiver()) {
 						return true;
 					}
 				}
-			} catch (InternalError $e) {
+			} catch (InternalError) {
 				$this->logger->warning('Cannot get user groups, permission denied');
 				return false;
 			}
@@ -425,7 +443,7 @@ class PermissionsService {
 
 	/**
 	 * @param int $elementId
-	 * @param 'table'|'view' $elementType
+	 * @param 'table'|'view'|'context' $elementType
 	 * @param string $userId
 	 * @return Permissions
 	 * @throws NotFoundError|InternalError
@@ -549,6 +567,11 @@ class PermissionsService {
 		);
 	}
 
+	public function setPublicContext(): void {
+		$this->userId = '';
+		$this->isPublicContext = true;
+	}
+
 	private function hasPermission(int $existingPermissions, string $permissionName): bool {
 		$constantName = 'PERMISSION_' . strtoupper($permissionName);
 		try {
@@ -628,20 +651,26 @@ class PermissionsService {
 		try {
 			$userId = $this->preCheckUserId($userId);
 		} catch (InternalError $e) {
-			$e = new \Exception('Cannot pre check the user id');
+			$e = new \Exception('Cannot pre check the user id', 0, $e);
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			return false;
 		}
 
 		if ($userId === '') {
-			return true;
+			return $this->isCli || $this->isPublicContext;
 		}
 
 		if ($this->userIsElementOwner($element, $userId, $nodeType)) {
 			return true;
 		}
+
+		$shareNodeId = $nodeType === 'view' ? $element->getTableId() : $element->getId();
+		// Views inherit manage permissions from their parent table, while contexts
+		// must resolve against context shares to avoid cross-type ID collisions.
+		$shareNodeType = $nodeType === 'context' ? 'context' : 'table';
+
 		try {
-			$permissions = $this->getSharedPermissionsIfSharedWithMe($nodeType === 'view' ? $element->getTableId() : $element->getId(), 'table', $userId);
+			$permissions = $this->getSharedPermissionsIfSharedWithMe($shareNodeId, $shareNodeType, $userId);
 			if ($permissions->manage) {
 				return true;
 			}

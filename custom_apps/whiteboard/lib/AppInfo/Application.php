@@ -7,7 +7,6 @@ declare(strict_types=1);
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 namespace OCA\Whiteboard\AppInfo;
 
 use OCA\Files_Sharing\Event\BeforeTemplateRenderedEvent;
@@ -16,12 +15,14 @@ use OCA\Whiteboard\Listener\AddContentSecurityPolicyListener;
 use OCA\Whiteboard\Listener\BeforeTemplateRenderedListener;
 use OCA\Whiteboard\Listener\LoadTextEditorListener;
 use OCA\Whiteboard\Listener\LoadViewerListener;
+use OCA\Whiteboard\Listener\RegisterDirectEditorListener;
 use OCA\Whiteboard\Listener\RegisterTemplateCreatorListener;
 use OCA\Whiteboard\Settings\SetupCheck;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\DirectEditing\RegisterDirectEditorEvent;
 use OCP\Files\Template\ITemplateManager;
 use OCP\Files\Template\RegisterTemplateCreatorEvent;
 use OCP\IL10N;
@@ -48,6 +49,7 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(LoadViewer::class, LoadTextEditorListener::class);
 		$context->registerEventListener(RegisterTemplateCreatorEvent::class, RegisterTemplateCreatorListener::class);
 		$context->registerEventListener(BeforeTemplateRenderedEvent::class, BeforeTemplateRenderedListener::class);
+		$context->registerEventListener(RegisterDirectEditorEvent::class, RegisterDirectEditorListener::class);
 		$context->registerSetupCheck(SetupCheck::class);
 	}
 

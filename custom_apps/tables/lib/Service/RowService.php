@@ -97,7 +97,10 @@ class RowService extends SuperService {
 				$tableColumns = $this->columnMapper->findAllByTable($tableId);
 				$showColumnIds = array_map(fn (Column $column) => $column->getId(), $tableColumns);
 
-				return $this->row2Mapper->findAll($showColumnIds, $tableId, $limit, $offset, null, null, $userId);
+				$table = $this->tableMapper->find($tableId);
+				$sort = $table->getSortArray() ?: null;
+
+				return $this->row2Mapper->findAll($showColumnIds, $tableId, $limit, $offset, null, $sort, $userId);
 			} else {
 				throw new PermissionError('no read access to table id = ' . $tableId);
 			}
@@ -123,7 +126,15 @@ class RowService extends SuperService {
 			if ($this->permissionsService->canReadRowsByElementId($viewId, 'view', $userId)) {
 				$view = $this->viewMapper->find($viewId);
 
-				return $this->row2Mapper->findAll($view->getColumnIds(), $view->getTableId(), $limit, $offset, $view->getFilterArray(), $view->getSortArray(), $userId);
+				return $this->row2Mapper->findAll(
+					$view->getColumnIds(),
+					$view->getTableId(),
+					$limit,
+					$offset,
+					$view->getFilterArray(),
+					$view->getSortArray(),
+					$this->resolveFilterUserId($userId, $view),
+				);
 			} else {
 				throw new PermissionError('no read access to view id = ' . $viewId);
 			}
@@ -133,6 +144,17 @@ class RowService extends SuperService {
 		}
 	}
 
+	/**
+	 * resolve  userid used for field placeholders in view filters.
+	 * if the request is made in a public and no userid is provided,use the view created_by id as fallback
+	 */
+	private function resolveFilterUserId(string $userId, View $view): string {
+		if ($userId === '' && $this->isPublicContext) {
+			return $view->getCreatedBy() ?? '';
+		}
+
+		return $userId;
+	}
 
 	/**
 	 * @param int $rowId
@@ -166,6 +188,7 @@ class RowService extends SuperService {
 	 * @param int|null $tableId
 	 * @param int|null $viewId
 	 * @param RowDataInput|list<array{columnId: int, value: mixed}> $data
+	 * @param string|null $userId
 	 * @return Row2
 	 *
 	 * @throws BadRequestError
@@ -174,8 +197,11 @@ class RowService extends SuperService {
 	 * @throws Exception
 	 * @throws InternalError
 	 */
-	public function create(?int $tableId, ?int $viewId, RowDataInput|array $data): Row2 {
-		if ($this->userId === null || $this->userId === '') {
+	public function create(?int $tableId, ?int $viewId, RowDataInput|array $data, ?string $userId = null): Row2 {
+		if ($userId) {
+			$this->userId = $userId;
+		}
+		if ($this->userId === null || ($this->userId === '' && !$this->isPublicContext)) {
 			$e = new \Exception('No user id in context, but needed.');
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
@@ -195,7 +221,7 @@ class RowService extends SuperService {
 			}
 
 			// security
-			if (!$this->permissionsService->canCreateRows($view)) {
+			if (!$this->permissionsService->canCreateRows($view, 'view', $this->userId)) {
 				throw new PermissionError('create row at the view id = ' . $viewId . ' is not allowed.');
 			}
 
@@ -213,7 +239,7 @@ class RowService extends SuperService {
 			}
 
 			// security
-			if (!$this->permissionsService->canCreateRows($table, 'table')) {
+			if (!$this->permissionsService->canCreateRows($table, 'table', $this->userId)) {
 				throw new PermissionError('create row at the table id = ' . $tableId . ' is not allowed.');
 			}
 
@@ -234,7 +260,7 @@ class RowService extends SuperService {
 		$row2->setTableId($tableId);
 		$row2->setData($data);
 		try {
-			$insertedRow = $this->row2Mapper->insert($row2);
+			$insertedRow = $this->row2Mapper->insert($row2, $this->userId);
 
 			$this->eventDispatcher->dispatchTyped(new RowAddedEvent($insertedRow));
 			$this->activityManager->triggerEvent(
@@ -329,7 +355,15 @@ class RowService extends SuperService {
 	private function cleanupAndValidateData(RowDataInput $data, array $columns, ?int $tableId, ?int $viewId, ?int $rowId = null): RowDataInput {
 		$view = $viewId ? $this->viewMapper->find($viewId) : null;
 		$readOnlyColumns = $view ? $this->extractColumnsByProperty($view, 'isReadonly') : [];
-		$mandatoryColumns = $view ? $this->extractColumnsByProperty($view, 'isMandatory') : [];
+		$mandatoryColumns = [];
+		foreach ($columns as $column) {
+			if ($column->getMandatory()) {
+				$mandatoryColumns[$column->getId()] = true;
+			}
+		}
+		if ($view) {
+			$mandatoryColumns += $this->extractColumnsByProperty($view, 'isMandatory');
+		}
 
 		$out = new RowDataInput();
 		foreach ($data as $entry) {
@@ -369,7 +403,7 @@ class RowService extends SuperService {
 			$out->add((int)$entry['columnId'], $this->parseValueByColumnType($column, $entry['value']));
 		}
 
-		if ($viewId && !empty($mandatoryColumns)) {
+		if (!empty($mandatoryColumns)) {
 			$existingRow = null;
 			if ($rowId !== null) {
 				try {
@@ -553,6 +587,15 @@ class RowService extends SuperService {
 		string $userId,
 		?int $tableId,
 	): Row2 {
+		if ($userId) {
+			$this->userId = $userId;
+		}
+		if ($this->userId === null || ($this->userId === '' && !$this->isPublicContext)) {
+			$e = new \Exception('No user id in context, but needed.');
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+		}
+
 		try {
 			$item = $this->getRowById($id);
 		} catch (InternalError $e) {
@@ -570,7 +613,7 @@ class RowService extends SuperService {
 				$this->logger->error($e->getMessage(), ['exception' => $e]);
 				throw new NotFoundError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
 			}
-			if (!$this->permissionsService->canUpdateRowsByViewId($viewId)) {
+			if (!$this->permissionsService->canUpdateRowsByViewId($viewId, $userId)) {
 				$e = new \Exception('Update row is not allowed.');
 				$this->logger->error($e->getMessage(), ['exception' => $e]);
 				throw new PermissionError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
@@ -616,7 +659,7 @@ class RowService extends SuperService {
 				$this->logger->error($e->getMessage(), ['exception' => $e]);
 				throw new NotFoundError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
 			}
-			if (!$this->permissionsService->canUpdateRowsByTableId($tableId)) {
+			if (!$this->permissionsService->canUpdateRowsByTableId($tableId, $userId)) {
 				$e = new \Exception('Update row is not allowed.');
 				$this->logger->error($e->getMessage(), ['exception' => $e]);
 				throw new PermissionError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
@@ -643,7 +686,7 @@ class RowService extends SuperService {
 			}
 		}
 
-		$updatedRow = $this->row2Mapper->update($item);
+		$updatedRow = $this->row2Mapper->update($item, $this->userId);
 
 		$this->eventDispatcher->dispatchTyped(new RowUpdatedEvent($updatedRow, $previousData));
 
@@ -674,7 +717,7 @@ class RowService extends SuperService {
 	 * @throws PermissionError
 	 * @noinspection DuplicatedCode
 	 */
-	public function delete(int $id, ?int $viewId, string $userId): Row2 {
+	public function delete(int $id, ?int $viewId, string $userId, ?int $tableId = null): Row2 {
 		try {
 			$item = $this->getRowById($id);
 		} catch (InternalError $e) {
@@ -709,6 +752,12 @@ class RowService extends SuperService {
 				throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
 			}
 		} else {
+			if ($tableId !== null && $tableId !== $item->getTableId()) {
+				$e = new \Exception('Row does not belong to table with id ' . $tableId);
+				$this->logger->error($e->getMessage(), ['exception' => $e]);
+				throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
+			}
+
 			// security
 			if (!$this->permissionsService->canReadRowsByElementId($item->getTableId(), 'table', $userId)) {
 				$e = new \Exception('Row not found.');

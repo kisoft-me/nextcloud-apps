@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace OCA\Whiteboard\Controller;
 
 use InvalidArgumentException;
-
 use OCA\Whiteboard\Exception\InvalidUserException;
 use OCA\Whiteboard\Exception\UnauthorizedException;
 use OCA\Whiteboard\Model\AuthenticatedUser;
@@ -85,8 +84,6 @@ final class RecordingController extends Controller {
 			return new Http\TemplateResponse($this->appName, 'recording', [], Http\TemplateResponse::RENDER_AS_BLANK);
 		}
 	}
-
-
 
 	/**
 	 * @NoCSRFRequired
@@ -163,7 +160,8 @@ final class RecordingController extends Controller {
 
 	private function createRecordingResponse(): PublicTemplateResponse {
 		$csp = new ContentSecurityPolicy();
-		$csp->allowEvalScript();
+		// NC34 removed allowEvalScript(), but the recording bundle still needs unsafe-eval.
+		$csp->addAllowedScriptDomain('\'unsafe-eval\'');
 
 		$response = new PublicTemplateResponse($this->appName, 'recording');
 		$response->setFooterVisible();
@@ -183,8 +181,6 @@ final class RecordingController extends Controller {
 		}
 		return $uploadedFile;
 	}
-
-
 
 	/**
 	 * @throws NotPermittedException

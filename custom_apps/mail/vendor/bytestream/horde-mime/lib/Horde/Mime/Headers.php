@@ -130,6 +130,8 @@ implements ArrayAccess, IteratorAggregate, Serializable
             $tmp = array();
 
             foreach ($ob->sendEncode(array_filter($sopts)) as $val) {
+                $val = $val ?? '';
+
                 if (empty($opts['nowrap'])) {
                     /* Remove any existing linebreaks and wrap the line. */
                     $htext = $ob->name . ': ';
@@ -503,7 +505,7 @@ implements ArrayAccess, IteratorAggregate, Serializable
     #[ReturnTypeWillChange]
     public function getIterator()
     {
-        return new ArrayIterator($this->_headers);
+        return new ArrayIterator((array) $this->_headers);
     }
 
     /* Deprecated functions */

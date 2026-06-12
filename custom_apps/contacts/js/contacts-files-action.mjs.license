@@ -25,7 +25,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 4.3.1
 	- license: MIT
 - contacts
-	- version: 8.4.4
+	- version: 8.7.0
 	- license: agpl
 - safe-buffer
 	- version: 5.2.1

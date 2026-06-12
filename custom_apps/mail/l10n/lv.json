@@ -69,6 +69,7 @@
     "Choose a file to add as attachment" : "Izvēlēties datni, ko pievienot kā pielikumu",
     "Choose a file to share as a link" : "Jāizvēlas datne, ko kopīgot kā saiti",
     "Confirm" : "Apstiprināt",
+    "Revoke" : "Atsaukt",
     "No messages in this folder" : "Šajā mapē nav neviens ziņojums",
     "Later today – {timeLocale}" : "Vēlāk šodien – {timeLocale}",
     "Set reminder for later today" : "Iestatīt atgādinājumu vēlākam šodien",
@@ -137,6 +138,7 @@
     "Tag name is a hidden system tag" : "Birkas nosaukums ir slēpta sistēmas birka",
     "Tag already exists" : "Birka jau pastāv",
     "Not found" : "Nav atrasts",
+    "To:" : "Kam:",
     "Untitled event" : "Nenosaukts notikums",
     "Deleted" : "Izdzēsts",
     "Recipient" : "Saņēmējs",
@@ -170,19 +172,13 @@
     "Inbox" : "Iesūtne",
     "Junk" : "Nevēlams",
     "Sent" : "Izsūtne",
-    "Trash" : "Miskaste",
+    "Trash" : "Atkritne",
     "Error while sharing file" : "Kļūda datnes kopīgošanā",
     "{from}\n{subject}" : "{from}\n{subject}",
     "There is already a message in progress. All unsaved changes will be lost if you continue!" : "Jau tiek apstrādāts ziņojums. Tiks zaudētas visas nesaglabātas izmaiņas, ja turpināsi.",
     "Discard unsaved changes" : "Atmest nesaglabātās izmaiņas",
     "Could not load {tag}{name}{endtag}" : "Nevarēja ielādēt {tag}{name}{endtag}",
     "There was a problem loading {tag}{name}{endtag}" : "Radusies problēma, ielādējot {tag}{name}{endtag}",
-    "Error loading message" : "Kļūda ielādējot vēstuli",
-    "Forwarding to %s" : "Pārsūtīt uz %s",
-    "Click here if you are not automatically redirected within the next few seconds." : "Jāklikšķina šeit, ja nenotiek automātiska pārvirzīšana dažu sekunžu laikā.",
-    "Redirect" : "Novirzīt",
-    "The link leads to %s" : "Saite, kas ved uz %s",
-    "Continue to %s" : "Turpināt %s",
-    "From me" : "No manis"
+    "Error loading message" : "Kļūda ielādējot vēstuli"
 },"pluralForm" :"nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 }

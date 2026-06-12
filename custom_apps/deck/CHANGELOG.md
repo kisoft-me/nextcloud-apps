@@ -5,6 +5,38 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 1.17.3
+
+### Fixed
+* [stable33] fix: avoid breaking card details modal when viewing attachment by @backportbot[bot] in https://github.com/nextcloud/deck/pull/8004
+* [stable33] fix(ci): use server behat binary by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7972
+* [stable33] fix(notifciations) by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7986
+
+
+## 1.17.2
+
+### Fixed
+* [stable33] owner should not get updated when updating card by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7852
+* [stable33] fix(comments): use message source when updating a message by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7884
+* [stable33] fix: call findBoardId with int by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7898
+* [stable33] fix: set max comment retrieval limit to 200 by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7912
+
+## 1.17.1
+
+### Added
+- feat: live update card description by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7793
+
+### Fixed
+- fix: remove user part only at the beginning of path by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7676
+- Fix npm audit by @nextcloud-command in https://github.com/nextcloud/deck/pull/7600
+- fix: hide upload button if user has no quota by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7678
+- fix: user may be null by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7707
+- fix: check cardId for attachment by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7737
+- fix: Handle share attributes in the share provider by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7728
+- Correctly copy label and description when clon… by @luka-nextcloud in https://github.com/nextcloud/deck/pull/7767
+- Server-side validation for whitespace in title by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7764
+- fix: showing no due cards by @backportbot[bot] in https://github.com/nextcloud/deck/pull/7811
+
 ## 1.17.0
 
 ### Added

@@ -71,6 +71,7 @@ OC.L10N.register(
     "Choose" : "Elekti",
     "Choose a file to add as attachment" : "Elektu dosieron aldonotan kiel kunsendaĵon",
     "Confirm" : "Konfirmi",
+    "Revoke" : "Senvalidigi",
     "Plain text" : "Ebenaĵa teksto",
     "No messages in this folder" : "Neniu mesaĝo en tiu dosierujo",
     "Blind copy recipients only" : "Nur blindkopiaj ricevontoj",
@@ -139,6 +140,7 @@ OC.L10N.register(
     "Tag already exists" : "La etikedo jam ekzistas",
     "Not found" : "Ne trovita",
     "Reply to sender only" : "Respondi nur al sendinto",
+    "To:" : "Al:",
     "Untitled event" : "Sentitola okazaĵo",
     "Import into {calendar}" : "Importi en {calendar}",
     "Event imported into {calendar}" : "Okazaĵo importis en {calendar}",
@@ -190,13 +192,6 @@ OC.L10N.register(
     "Could not load your message" : "Ne eblis ŝargi vian mesaĝon",
     "Could not load the desired message" : "Ne eblis ŝargi la deziratan mesaĝon",
     "Could not load the message" : "Ne eblis ŝargi la mesaĝon",
-    "Error loading message" : "Eraris ŝargi mesaĝon",
-    "Forwarding to %s" : "Plusendi al %s",
-    "Click here if you are not automatically redirected within the next few seconds." : "Alklaku ĉi tie, ĉu vi ne estos aŭtomate alidirektita post kelkaj sekundoj.",
-    "Redirect" : "Alidirekto",
-    "The link leads to %s" : "La ligilo iras al %s",
-    "Continue to %s" : "Daŭrigi al %s",
-    "Mark all messages of this folder as read" : "Marki ĉiujn mesaĝojn el tiu dosierujo kiel legitaj",
-    "Last 7 days" : "Lastaj 7 tagoj"
+    "Error loading message" : "Eraris ŝargi mesaĝon"
 },
 "nplurals=2; plural=(n != 1);");

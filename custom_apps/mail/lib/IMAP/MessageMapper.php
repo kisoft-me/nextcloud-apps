@@ -20,6 +20,7 @@ use Horde_Imap_Client_Search_Query;
 use Horde_Imap_Client_Socket;
 use Horde_Mime_Exception;
 use Horde_Mime_Headers;
+use Horde_Mime_Headers_ContentParam_ContentDisposition;
 use Horde_Mime_Headers_ContentParam_ContentType;
 use Horde_Mime_Headers_ContentTransferEncoding;
 use Horde_Mime_Part;
@@ -159,7 +160,7 @@ class MessageMapper {
 		// Here we assume somewhat equally distributed UIDs
 		// +1 is added to fetch all messages with the rare case of strictly
 		// continuous UIDs and fractions
-		$estimatedPageSize = (int)(($totalRange / $total) * $maxResults) + 1;
+		$estimatedPageSize = (int)((float)($totalRange / $total) * $maxResults) + 1;
 		// Determine min UID to fetch, but don't exceed the known maximum
 		$lower = max(
 			$min,
@@ -180,20 +181,20 @@ class MessageMapper {
 			];
 		}
 
-		$idsToFetch = new Horde_Imap_Client_Ids($lower . ':' . $upper);
+		$idsToFetch = new Horde_Imap_Client_Ids("$lower:$upper");
 		$actualPageSize = $this->getPageSize($client, $mailbox, $idsToFetch);
 		$logger->debug("Built range for findAll: min=$min max=$max total=$total totalRange=$totalRange estimatedPageSize=$estimatedPageSize actualPageSize=$actualPageSize lower=$lower upper=$upper highestKnownUid=$highestKnownUid");
 		while ($actualPageSize > $maxResults) {
 			$logger->debug("Range for findAll matches too many messages: min=$min max=$max total=$total estimatedPageSize=$estimatedPageSize actualPageSize=$actualPageSize");
 
-			$estimatedPageSize = (int)($estimatedPageSize / 2);
+			$estimatedPageSize = (int)($estimatedPageSize / 2.0);
 
 			$upper = min(
 				$max,
 				$lower + $estimatedPageSize,
 				$lower + 1_000_000, // Somewhat sensible number of UIDs that fit into memory (Horde_Imap_ClientId bloat)
 			);
-			$idsToFetch = new Horde_Imap_Client_Ids($lower . ':' . $upper);
+			$idsToFetch = new Horde_Imap_Client_Ids("$lower:$upper");
 			$actualPageSize = $this->getPageSize($client, $mailbox, $idsToFetch);
 		}
 
@@ -304,7 +305,8 @@ class MessageMapper {
 		$fetchResults = array_values(array_filter($fetchResults, static fn (Horde_Imap_Client_Data_Fetch $fetchResult) => $fetchResult->exists(Horde_Imap_Client::FETCH_ENVELOPE)));
 
 		if ($fetchResults === []) {
-			$this->logger->debug("findByIds in $mailbox got " . count($ids) . ' UIDs but found none');
+			$nIds = count($ids);
+			$this->logger->debug("findByIds in $mailbox got $nIds UIDs but found none");
 		} else {
 			$minFetched = $fetchResults[0]->getUid();
 			$maxFetched = $fetchResults[count($fetchResults) - 1]->getUid();
@@ -313,7 +315,9 @@ class MessageMapper {
 			} else {
 				$range = 'literals';
 			}
-			$this->logger->debug("findByIds in $mailbox got " . count($ids) . " UIDs ($range) and found " . count($fetchResults) . ". minFetched=$minFetched maxFetched=$maxFetched");
+			$nIds = count($ids);
+			$nFetched = count($fetchResults);
+			$this->logger->debug("findByIds in $mailbox got $nIds UIDs ($range) and found $nFetched. minFetched=$minFetched maxFetched=$maxFetched");
 		}
 
 		return array_map(fn (Horde_Imap_Client_Data_Fetch $fetchResult) => $this->imapMessageFactory
@@ -582,8 +586,9 @@ class MessageMapper {
 			/** @var Horde_Imap_Client_Data_Fetch $part */
 			$body = $part->getBodyPart($htmlPartId);
 			if ($body !== null) {
+				/** @var Horde_Mime_Headers $mimeHeaders */
 				$mimeHeaders = $part->getMimeHeader($htmlPartId, Horde_Imap_Client_Data_Fetch::HEADER_PARSE);
-				if ($enc = $mimeHeaders->getValue('content-transfer-encoding')) {
+				if ($enc = $mimeHeaders['content-transfer-encoding']?->value_single) {
 					$structure->setTransferEncoding($enc);
 				}
 				$structure->setContents($body);
@@ -695,8 +700,9 @@ class MessageMapper {
 			// Encrypted parts were already decoded and their content can be used directly
 			if (!$isEncrypted) {
 				$stream = $messageData->getBodyPart($key, true);
+				/** @var Horde_Mime_Headers $mimeHeaders */
 				$mimeHeaders = $messageData->getMimeHeader($key, Horde_Imap_Client_Data_Fetch::HEADER_PARSE);
-				if ($enc = $mimeHeaders->getValue('content-transfer-encoding')) {
+				if ($enc = $mimeHeaders['content-transfer-encoding']?->value_single) {
 					$part->setTransferEncoding($enc);
 				}
 
@@ -798,37 +804,32 @@ class MessageMapper {
 
 		$mimePart = new Horde_Mime_Part();
 
-		// Serve all files with a content-disposition of "attachment" to prevent Cross-Site Scripting
-		$mimePart->setDisposition('attachment');
+		$contentId = $mimeHeaders['content-id']?->value_single;
+		if ($contentId !== null) {
+			$mimePart->setContentId($contentId);
+		}
 
-		// Extract headers from part
-		$contentDisposition = $mimeHeaders->getValue('content-disposition', Horde_Mime_Headers::VALUE_PARAMS);
-		if (!is_null($contentDisposition) && isset($contentDisposition['filename'])) {
-			$mimePart->setDispositionParameter('filename', $contentDisposition['filename']);
-		} else {
-			$contentDisposition = $mimeHeaders->getValue('content-type', Horde_Mime_Headers::VALUE_PARAMS);
-			if (isset($contentDisposition['name'])) {
-				$mimePart->setContentTypeParameter('name', $contentDisposition['name']);
-			}
+		$contentDisposition = $mimeHeaders['content-disposition'];
+		if ($contentDisposition instanceof Horde_Mime_Headers_ContentParam_ContentDisposition) {
+			$mimePart->setDisposition($contentDisposition->value_single);
+			$mimePart->setDispositionParameter('filename', $contentDisposition['filename'] ?? null);
 		}
 
 		// Content transfer encoding
 		// Decrypted parts are already decoded because they went through the MIME parser
-		if (!$isEncrypted && $tmp = $mimeHeaders->getValue('content-transfer-encoding')) {
+		if (!$isEncrypted && $tmp = $mimeHeaders['content-transfer-encoding']?->value_single) {
 			$mimePart->setTransferEncoding($tmp);
 		}
 
-		/* Content type */
-		$contentType = $mimeHeaders->getValue('content-type');
-		if (!is_null($contentType) && str_contains($contentType, 'text/calendar')) {
-			$mimePart->setType('text/calendar');
-			if ($mimePart->getContentTypeParameter('name') === null) {
-				$mimePart->setContentTypeParameter('name', 'calendar.ics');
+		$contentType = $mimeHeaders['content-type'];
+		if ($contentType instanceof Horde_Mime_Headers_ContentParam_ContentType) {
+			if (str_contains($contentType->value_single, 'text/calendar')) {
+				$mimePart->setType('text/calendar');
+				$mimePart->setContentTypeParameter('name', $contentType['name'] ?? 'calendar.ics');
+			} else {
+				$mimePart->setType($contentType->value_single);
+				$mimePart->setContentTypeParameter('name', $contentType['name'] ?? null);
 			}
-		} else {
-			// To prevent potential problems with the SOP we serve all files but calendar entries with the
-			// MIME type "application/octet-stream"
-			$mimePart->setType('application/octet-stream');
 		}
 
 		$mimePart->setContents($body);

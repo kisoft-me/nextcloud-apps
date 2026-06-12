@@ -79,13 +79,19 @@ class MailboxSync {
 	 */
 	public function sync(Account $account,
 		LoggerInterface $logger,
-		bool $force = false): void {
+		bool $force = false,
+		?Horde_Imap_Client_Socket $client = null): void {
 		if (!$force && $account->getMailAccount()->getLastMailboxSync() >= ($this->timeFactory->getTime() - 7200)) {
 			$logger->debug('account is up to date, skipping mailbox sync');
 			return;
 		}
 
-		$client = $this->imapClientFactory->getClient($account);
+		if ($client === null) {
+			$client = $this->imapClientFactory->getClient($account);
+			$ownClient = true;
+		} else {
+			$ownClient = false;
+		}
 		try {
 			try {
 				$namespaces = $client->getNamespaces([], [
@@ -96,7 +102,8 @@ class MailboxSync {
 					$personalNamespace
 				);
 			} catch (Horde_Imap_Client_Exception $e) {
-				$logger->debug('Getting namespaces for account ' . $account->getId() . ' failed: ' . $e->getMessage(), [
+				$id = $account->getId();
+				$logger->debug("Getting namespaces for account $id failed: " . $e->getMessage(), [
 					'exception' => $e,
 				]);
 				$namespaces = null;
@@ -131,7 +138,9 @@ class MailboxSync {
 				new MailboxesSynchronizedEvent($account)
 			);
 		} finally {
-			$client->logout();
+			if ($ownClient) {
+				$client->logout();
+			}
 		}
 	}
 
@@ -210,7 +219,7 @@ class MailboxSync {
 	}
 
 	private function updateMailboxFromFolder(Folder $folder, Mailbox $mailbox, ?Horde_Imap_Client_Namespace_List $namespaces): Mailbox {
-		$mailbox->setAttributes(json_encode($folder->getAttributes()));
+		$mailbox->setAttributes(json_encode($folder->getAttributes(), JSON_THROW_ON_ERROR));
 		$mailbox->setDelimiter($folder->getDelimiter());
 		$status = $folder->getStatus();
 		if ($status !== null) {
@@ -218,7 +227,7 @@ class MailboxSync {
 			$mailbox->setUnseen($status['unseen'] ?? 0);
 		}
 		$mailbox->setSelectable(!in_array('\noselect', $folder->getAttributes()));
-		$mailbox->setSpecialUse(json_encode($folder->getSpecialUse()));
+		$mailbox->setSpecialUse(json_encode($folder->getSpecialUse(), JSON_THROW_ON_ERROR));
 		$mailbox->setMyAcls($folder->getMyAcls());
 		$mailbox->setShared($this->isMailboxShared($namespaces, $mailbox));
 		return $this->mailboxMapper->update($mailbox);
@@ -228,13 +237,13 @@ class MailboxSync {
 		$mailbox = new Mailbox();
 		$mailbox->setName($folder->getMailbox());
 		$mailbox->setAccountId($account->getId());
-		$mailbox->setAttributes(json_encode($folder->getAttributes()));
+		$mailbox->setAttributes(json_encode($folder->getAttributes(), JSON_THROW_ON_ERROR));
 		$mailbox->setDelimiter($folder->getDelimiter());
 		$status = $folder->getStatus();
 		$mailbox->setMessages($status['messages'] ?? 0);
 		$mailbox->setUnseen($status['unseen'] ?? 0);
 		$mailbox->setSelectable(!in_array('\noselect', $folder->getAttributes()));
-		$mailbox->setSpecialUse(json_encode($folder->getSpecialUse()));
+		$mailbox->setSpecialUse(json_encode($folder->getSpecialUse(), JSON_THROW_ON_ERROR));
 		$mailbox->setMyAcls($folder->getMyAcls());
 		$mailbox->setShared($this->isMailboxShared($namespaces, $mailbox));
 		$mailbox->setNameHash(md5($folder->getMailbox()));

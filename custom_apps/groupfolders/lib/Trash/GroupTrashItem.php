@@ -66,6 +66,19 @@ class GroupTrashItem extends TrashItem {
 		return $path;
 	}
 
+	#[\Override]
+	public function getName(): string {
+		// trashbin expects the name without the deletion timestamp
+		$name = parent::getName();
+		$deletionExtension = '.d' . $this->getDeletedTime();
+
+		if (str_ends_with($name, $deletionExtension)) {
+			$name = substr($name, 0, -strlen($deletionExtension));
+		}
+
+		return $name;
+	}
+
 	public function getFullInternalPath(): string {
 		return parent::getInternalPath();
 	}
@@ -80,5 +93,10 @@ class GroupTrashItem extends TrashItem {
 
 	public function getGroupFolderStorageId(): int {
 		return $this->folder->storageId;
+	}
+
+	#[\Override]
+	public function getLastActivity(): int {
+		return $this->fileInfo->getLastActivity();
 	}
 }

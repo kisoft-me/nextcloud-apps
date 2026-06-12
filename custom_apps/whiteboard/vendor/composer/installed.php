@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'nextcloud/whiteboard',
-        'pretty_version' => 'v1.5.7',
-        'version' => '1.5.7.0',
-        'reference' => '56c3546cef08b92bf648926e956ae3ca2b1910ec',
+        'pretty_version' => 'v1.5.9',
+        'version' => '1.5.9.0',
+        'reference' => '2c97cec3150d5e7ec69e04ed98baaf9f138417ff',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -20,9 +20,9 @@
             'dev_requirement' => false,
         ),
         'nextcloud/whiteboard' => array(
-            'pretty_version' => 'v1.5.7',
-            'version' => '1.5.7.0',
-            'reference' => '56c3546cef08b92bf648926e956ae3ca2b1910ec',
+            'pretty_version' => 'v1.5.9',
+            'version' => '1.5.9.0',
+            'reference' => '2c97cec3150d5e7ec69e04ed98baaf9f138417ff',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

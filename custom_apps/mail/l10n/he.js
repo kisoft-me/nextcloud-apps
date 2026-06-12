@@ -96,6 +96,7 @@ OC.L10N.register(
     "Choose a file to add as attachment" : "בחירת קובץ להוספה כקובץ מצורף",
     "Choose a file to share as a link" : "נא לבחור קובץ לשיתוף כקישור",
     "Confirm" : "אימות",
+    "Revoke" : "שלילה",
     "Plain text" : "טקסט פשוט",
     "Rich text" : "טקסט עשיר",
     "No messages in this folder" : "אין הודעות בתיקייה זו",
@@ -202,6 +203,7 @@ OC.L10N.register(
     "Could not load your message thread" : "לא ניתן לטעון את שרשור ההודעות שלך",
     "Not found" : "לא נמצא",
     "Reply to sender only" : "להגיב לשולח בלבד",
+    "To:" : "סיום:",
     "Could not remove trusted sender {sender}" : "לא ניתן להסיר את השולח המאומת {sender}",
     "No senders are trusted at the moment." : "אין שולחים מהימנים כרגע.",
     "Untitled event" : "אירוע ללא כותרת",
@@ -246,6 +248,7 @@ OC.L10N.register(
     "Group" : "קבוצה",
     "Shared" : "משותף",
     "Shares" : "שיתופים",
+    "Insert" : "הכנסה",
     "Account connected" : "חשבון מחובר",
     "Connect your mail account" : "התחברות לחשבון הדוא״ל שלך",
     "All" : "הכול",
@@ -267,12 +270,6 @@ OC.L10N.register(
     "Could not load your message" : "לא ניתן לטעון את ההודעה שלך",
     "Could not load the desired message" : "לא ניתן לטעון את ההודעה המבוקשת",
     "Could not load the message" : "לא ניתן לטעון את ההודעה",
-    "Error loading message" : "שגיאה בהעלאת הודעה",
-    "Forwarding to %s" : "מועבר אל %s",
-    "Click here if you are not automatically redirected within the next few seconds." : "יש ללחוץ כאן אם לא הועברת אוטומטית בשניות הקרובות.",
-    "Redirect" : "הפנייה",
-    "The link leads to %s" : "הקישור מוביל אל %s",
-    "Continue to %s" : "ממשיך אל %s",
-    "Mark all messages of this folder as read" : "סימון כל ההודעות בתיקייה הזאת כנקראו"
+    "Error loading message" : "שגיאה בהעלאת הודעה"
 },
 "nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2;");

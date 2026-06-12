@@ -23,6 +23,7 @@ use OCA\Tables\Errors\PermissionError;
 use OCA\Tables\Helper\UserHelper;
 use OCA\Tables\ResponseDefinitions;
 use OCA\Tables\Service\ValueObject\ViewColumnInformation;
+use OCA\Tables\Validation\ColumnDtoValidator;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\IL10N;
@@ -44,6 +45,11 @@ class ColumnService extends SuperService {
 
 	private UserHelper $userHelper;
 
+	private ColumnDtoValidator $columnDtoValidator;
+
+	/** @var array<int, int[]> Per-request cache of sorted column-id order, keyed by tableId. */
+	private array $columnOrderCache = [];
+
 	public function __construct(
 		PermissionsService $permissionsService,
 		LoggerInterface $logger,
@@ -54,6 +60,7 @@ class ColumnService extends SuperService {
 		RowService $rowService,
 		IL10N $l,
 		UserHelper $userHelper,
+		ColumnDtoValidator $columnDtoValidator,
 	) {
 		parent::__construct($logger, $userId, $permissionsService);
 		$this->mapper = $mapper;
@@ -62,17 +69,47 @@ class ColumnService extends SuperService {
 		$this->rowService = $rowService;
 		$this->l = $l;
 		$this->userHelper = $userHelper;
+		$this->columnDtoValidator = $columnDtoValidator;
 	}
-
 
 	/**
 	 * @throws InternalError
 	 * @throws PermissionError
 	 */
-	public function findAllByTable(int $tableId, ?string $userId = null): array {
+	public function findAllByTable(int $tableId, ?string $userId = null, ?Table $table = null): array {
 		if ($this->permissionsService->canReadColumnsByTableId($tableId, $userId)) {
 			try {
-				return $this->enhanceColumns($this->mapper->findAllByTable($tableId));
+				$columns = $this->enhanceColumns($this->mapper->findAllByTable($tableId));
+
+				// Apply table-level default column order when set.
+				// Use a per-request cache to avoid a redundant DB fetch when the
+				// caller did not pass the Table entity and the TableMapper cache
+				// is cold (e.g. CLI/migration paths with $userId = '').
+				if (!array_key_exists($tableId, $this->columnOrderCache)) {
+					$entity = $table ?? $this->tableMapper->find($tableId);
+					$this->columnOrderCache[$tableId] = $entity->getColumnOrderArray();
+				}
+				$columnOrder = $this->columnOrderCache[$tableId];
+				if (!empty($columnOrder)) {
+					$indexed = [];
+					foreach ($columns as $column) {
+						$indexed[$column->getId()] = $column;
+					}
+					$ordered = [];
+					foreach ($columnOrder as $id) {
+						if (isset($indexed[$id])) {
+							$ordered[] = $indexed[$id];
+							unset($indexed[$id]);
+						}
+					}
+					// append any columns not listed in the order (e.g. newly added)
+					foreach ($indexed as $column) {
+						$ordered[] = $column;
+					}
+					return $ordered;
+				}
+
+				return $columns;
 			} catch (\OCP\DB\Exception $e) {
 				$this->logger->error($e->getMessage(), ['exception' => $e]);
 				throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
@@ -199,10 +236,11 @@ class ColumnService extends SuperService {
 		if (ColumnType::tryFrom($columnDto->getType()) === null) {
 			throw new BadRequestError('Column type ' . $columnDto->getType() . ' does not exist.');
 		}
+		$this->columnDtoValidator->validate($columnDto);
 		// security
 		if ($viewId) {
 			try {
-				$view = $this->viewService->find($viewId);
+				$view = $this->viewService->find($viewId, true, $userId);
 			} catch (InternalError|MultipleObjectsReturnedException $e) {
 				$this->logger->error($e->getMessage(), ['exception' => $e]);
 				throw new InternalError(get_class($this) . ' - ' . __FUNCTION__ . ': ' . $e->getMessage());
@@ -235,7 +273,7 @@ class ColumnService extends SuperService {
 			throw new InternalError('Cannot create column without table or view in context');
 		}
 
-		if (!$this->permissionsService->canCreateColumns($table)) {
+		if (!$this->permissionsService->canCreateColumns($table, $userId)) {
 			throw new PermissionError('create column for the table id = ' . $table->getId() . ' is not allowed.');
 		}
 
@@ -260,7 +298,6 @@ class ColumnService extends SuperService {
 
 		$this->validateCustomSettings($columnDto->getCustomSettings());
 
-		$time = new DateTime();
 		$item = Column::fromDto($columnDto);
 		$item->setTitle($newTitle);
 		$item->setTableId($table->getId());
@@ -316,6 +353,7 @@ class ColumnService extends SuperService {
 			if (!$this->permissionsService->canUpdateColumnsByTableId($item->getTableId())) {
 				throw new PermissionError('update column id = ' . $columnId . ' is not allowed.');
 			}
+			$this->columnDtoValidator->validate($columnDto);
 
 			if ($columnDto->getTitle() !== null) {
 				$item->setTitle($columnDto->getTitle());

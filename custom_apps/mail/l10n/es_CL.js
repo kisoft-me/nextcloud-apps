@@ -52,6 +52,7 @@ OC.L10N.register(
     "Choose" : "Seleccionar",
     "Choose a file to add as attachment" : "Selecciona el archivo a agregar como adjunto",
     "Confirm" : "Confirmar",
+    "Revoke" : "Revocar",
     "No messages in this folder" : "No hay mensajes en esta carpeta",
     "Unfavorite" : "Quitar favorito",
     "Favorite" : "Hacer favorito",
@@ -101,6 +102,7 @@ OC.L10N.register(
     "Select tags" : "Selecciona las etiquetas",
     "Custom" : "Personalizado",
     "Add tag" : "Agregar etiqueta",
+    "To:" : "Para:",
     "Deleted" : "Borrado",
     "Recipient" : "Destinatario",
     "Help" : "Ayuda",
@@ -137,11 +139,6 @@ OC.L10N.register(
     "Could not load your message" : "No fue posible cargar tu mensaje",
     "Could not load the desired message" : "No fue posible cargar el mensaje deseado",
     "Could not load the message" : "No fue posible cargar el mensaje",
-    "Error loading message" : "Se presentó un error al cargar el mensaje",
-    "Forwarding to %s" : "Reenviando a %s",
-    "Click here if you are not automatically redirected within the next few seconds." : "Haz click aqui si no eres redireccionado automáticamente dentro de los siguietes segundos. ",
-    "Redirect" : "Redireccionar",
-    "The link leads to %s" : "La liga lleva a %s",
-    "Continue to %s" : "Continuar a %s"
+    "Error loading message" : "Se presentó un error al cargar el mensaje"
 },
 "nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

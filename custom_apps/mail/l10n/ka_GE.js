@@ -52,6 +52,7 @@ OC.L10N.register(
     "Choose" : "აირჩიეთ",
     "Choose a file to add as attachment" : "დანართად დასამატებლად აირჩიეთ ფაილი",
     "Confirm" : "დადასტურება",
+    "Revoke" : "წვდომის გაუქმება",
     "Unfavorite" : "რჩეულებიდან ამოშლა",
     "Favorite" : "რჩეული",
     "Read" : "წაკითხვა",
@@ -104,6 +105,7 @@ OC.L10N.register(
     "Select tags" : "აირჩიეთ ტეგები",
     "Custom" : "ინდივიდუალური",
     "Add tag" : "ტეგის დამატება",
+    "To:" : "ვის:",
     "Deleted" : "გაუქმდა",
     "Recipient" : "მიმღები",
     "Help" : "დახმარება",
@@ -139,11 +141,6 @@ OC.L10N.register(
     "Could not load your message" : "თქვენი წერილის ჩატვირთვა ვერ მოხერხდა",
     "Could not load the desired message" : "სასურველი წერილის ჩატვირთვა ვერ მოხერხდა",
     "Could not load the message" : "წერილის ჩატვირთვა ვერ მოხერხდა",
-    "Error loading message" : "წერილის ჩატვირთვისას წარმოიშვა შეცდომა",
-    "Forwarding to %s" : "გადაგზავნილია %s-ზე",
-    "Click here if you are not automatically redirected within the next few seconds." : "იმ შემთხვევაში, თუ რამდენიმე წამის განმავლობაში არ მოხდება ავტომატური გადამისამართება დააწკაპუნეთ აქ.",
-    "Redirect" : "გადამისამართება",
-    "The link leads to %s" : "ბმულს მიყევხართ %s-ისკენ",
-    "Continue to %s" : "%s-ისკენ გაგრძელება"
+    "Error loading message" : "წერილის ჩატვირთვისას წარმოიშვა შეცდომა"
 },
 "nplurals=2; plural=(n!=1);");

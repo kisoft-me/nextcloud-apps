@@ -25,6 +25,7 @@
                 "required": [
                     "id",
                     "email",
+                    "isDelegated",
                     "aliases"
                 ],
                 "properties": {
@@ -34,6 +35,9 @@
                     },
                     "email": {
                         "type": "string"
+                    },
+                    "isDelegated": {
+                        "type": "boolean"
                     },
                     "aliases": {
                         "type": "array",
@@ -81,7 +85,8 @@
                     "isOneClickUnsubscribe",
                     "unsubscribeMailTo",
                     "scheduling",
-                    "attachments"
+                    "attachments",
+                    "inlineAttachments"
                 ],
                 "properties": {
                     "uid": {
@@ -325,6 +330,54 @@
                         }
                     },
                     "attachments": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "id",
+                                "messageId",
+                                "filename",
+                                "mime",
+                                "size",
+                                "cid",
+                                "disposition"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": "integer",
+                                    "format": "int64",
+                                    "minimum": 1
+                                },
+                                "messageId": {
+                                    "type": "integer",
+                                    "format": "int64",
+                                    "minimum": 1
+                                },
+                                "filename": {
+                                    "type": "string"
+                                },
+                                "mime": {
+                                    "type": "string"
+                                },
+                                "size": {
+                                    "type": "integer",
+                                    "format": "int64",
+                                    "minimum": 0
+                                },
+                                "cid": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "disposition": {
+                                    "type": "string"
+                                },
+                                "downloadUrl": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "inlineAttachments": {
                         "type": "array",
                         "items": {
                             "type": "object",

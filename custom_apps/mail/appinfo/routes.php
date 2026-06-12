@@ -11,6 +11,11 @@ declare(strict_types=1);
 return [
 	'routes' => [
 		[
+			'name' => 'deep_link#open',
+			'url' => '/open/{messageId}',
+			'verb' => 'GET',
+		],
+		[
 			'name' => 'page#index',
 			'url' => '/',
 			'verb' => 'GET'
@@ -296,11 +301,6 @@ return [
 			'verb' => 'GET'
 		],
 		[
-			'name' => 'proxy#redirect',
-			'url' => '/redirect',
-			'verb' => 'GET'
-		],
-		[
 			'name' => 'proxy#proxy',
 			'url' => '/proxy',
 			'verb' => 'GET'
@@ -504,6 +504,21 @@ return [
 			'name' => 'followUp#checkMessageIds',
 			'url' => '/api/follow-up/check-message-ids',
 			'verb' => 'POST',
+		],
+		[
+			'name' => 'delegation#getDelegatedUsers',
+			'url' => '/api/delegations/{accountId}',
+			'verb' => 'GET',
+		],
+		[
+			'name' => 'delegation#delegate',
+			'url' => '/api/delegations/{accountId}',
+			'verb' => 'POST',
+		],
+		[
+			'name' => 'delegation#unDelegate',
+			'url' => '/api/delegations/{accountId}/{userId}',
+			'verb' => 'DELETE',
 		],
 		[
 			'name' => 'textBlockShares#getTextBlockShares',

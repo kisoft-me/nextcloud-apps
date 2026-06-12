@@ -8,7 +8,6 @@
 namespace OCA\Whiteboard\Settings;
 
 use OCA\Whiteboard\Service\ConfigService;
-use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IUserSession;
@@ -37,11 +36,8 @@ class Personal implements ISettings {
 			'whiteboard',
 			'personal',
 			[],
-			'blank'
+			TemplateResponse::RENDER_AS_BLANK
 		);
-		$csp = new ContentSecurityPolicy();
-		$csp->addAllowedConnectDomain('*');
-		$response->setContentSecurityPolicy($csp);
 		return $response;
 	}
 

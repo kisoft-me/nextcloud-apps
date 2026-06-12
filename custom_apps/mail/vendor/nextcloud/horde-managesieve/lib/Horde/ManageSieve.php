@@ -145,6 +145,11 @@ class ManageSieve
     protected $_maxReferralCount = 15;
 
     /**
+     * @var array|array[]|null
+     */
+    private $_capability;
+
+    /**
      * Constructor.
      *
      * If username and password are provided connects to the server and logs

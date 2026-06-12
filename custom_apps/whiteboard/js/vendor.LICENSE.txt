@@ -69,11 +69,11 @@ version: 0.6.3
 license: MIT
 
 @nextcloud/auth
-version: 2.5.3
+version: 2.6.0
 license: GPL-3.0-or-later
 
 @nextcloud/axios
-version: 2.5.2
+version: 2.6.0
 license: GPL-3.0-or-later
 
 @nextcloud/browser-storage
@@ -93,7 +93,7 @@ version: 3.3.3
 license: GPL-3.0-or-later
 
 @nextcloud/excalidraw
-version: 0.18.0-bdcb957
+version: 0.18.0-6135eb0
 license: MIT
 
 @nextcloud/initial-state
@@ -253,7 +253,7 @@ version: 1.2.6
 license: MIT
 
 axios
-version: 1.13.5
+version: 1.16.1
 license: MIT
 
 browser-fs-access
@@ -281,7 +281,7 @@ version: 1.1.1
 license: MIT
 
 cose-base
-version: 2.2.0
+version: 1.0.3
 license: MIT
 
 crc-32
@@ -341,8 +341,8 @@ version: 3.0.1
 license: ISC
 
 d3-path
-version: 3.1.0
-license: ISC
+version: 1.0.9
+license: BSD-3-Clause
 
 d3-sankey
 version: 0.12.3
@@ -405,11 +405,11 @@ version: 1.1.0
 license: MIT
 
 dexie
-version: 4.3.0
+version: 4.4.2
 license: Apache-2.0
 
 dompurify
-version: 3.2.7
+version: 3.1.6
 license: (MPL-2.0 OR Apache-2.0)
 
 elkjs
@@ -425,7 +425,7 @@ version: 5.2.0
 license: MIT
 
 engine.io-client
-version: 6.6.3
+version: 6.6.5
 license: MIT
 
 engine.io-parser
@@ -505,7 +505,7 @@ version: 3.3.1
 license: MIT
 
 layout-base
-version: 2.0.1
+version: 1.0.2
 license: MIT
 
 linkify-string
@@ -517,7 +517,7 @@ version: 4.3.2
 license: MIT
 
 lodash
-version: 4.17.23
+version: 4.18.1
 license: MIT
 
 lodash-es
@@ -729,7 +729,7 @@ version: 4.8.3
 license: 
 
 socket.io-parser
-version: 4.2.4
+version: 4.2.6
 license: MIT
 
 strip-ansi
@@ -789,7 +789,7 @@ version: 1.5.0
 license: MIT
 
 uuid
-version: 9.0.1
+version: 11.1.0
 license: MIT
 
 vite-plugin-node-polyfills
@@ -833,5 +833,5 @@ version: 3.11.1
 license: MIT
 
 zustand
-version: 5.0.11
+version: 5.0.13
 license: MIT

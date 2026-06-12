@@ -5,14 +5,17 @@ declare(strict_types=1);
  * SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
+
 namespace OCA\Tables\Controller;
 
 use InvalidArgumentException;
+use OCA\Tables\AppInfo\Application;
 use OCA\Tables\Db\Context;
 use OCA\Tables\Errors\BadRequestError;
 use OCA\Tables\Errors\InternalError;
 use OCA\Tables\Errors\NotFoundError;
 use OCA\Tables\Errors\PermissionError;
+use OCA\Tables\Middleware\Attribute\RequirePermission;
 use OCA\Tables\ResponseDefinitions;
 use OCA\Tables\Service\ContextService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -234,6 +237,7 @@ class ContextController extends AOCSController {
 	 * @psalm-param int<0, 0> $newOwnerType
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission(Application::PERMISSION_OWNER, null, 'context', 'contextId')]
 	public function transfer(int $contextId, string $newOwnerId, int $newOwnerType = 0): DataResponse {
 		try {
 			return new DataResponse($this->contextService->transfer($contextId, $newOwnerId, $newOwnerType)->jsonSerialize());

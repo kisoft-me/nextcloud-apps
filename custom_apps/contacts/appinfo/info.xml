@@ -16,8 +16,8 @@
 * 🙈 **We’re not reinventing the wheel!** Based on the great and open SabreDAV library.
 	</description>
 
-	<version>8.4.4</version>
-	<licence>agpl</licence>
+	<version>8.7.0</version>
+	<licence>AGPL-3.0-or-later</licence>
 
 	<author mail="hamza221@users.noreply.github.com">Hamza Mahjoubi</author>
 	<author homepage="https://github.com/nextcloud/groupware">Nextcloud Groupware Team</author>
@@ -44,7 +44,7 @@
 
 	<dependencies>
 		<php min-version="8.2" max-version="8.5" />
-		<nextcloud min-version="33" max-version="33" />
+		<nextcloud min-version="33" max-version="34" />
 	</dependencies>
 
 	<background-jobs>

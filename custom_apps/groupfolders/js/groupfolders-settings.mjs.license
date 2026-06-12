@@ -65,7 +65,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 9.5.0
 	- license: AGPL-3.0-or-later
 - groupfolders
-	- version: 21.0.6
+	- version: 21.0.7
 	- license: undefined
 - hoist-non-react-statics
 	- version: 3.3.2

@@ -35,6 +35,7 @@ OC.L10N.register(
     "Choose" : "เลือก",
     "Choose a file to add as attachment" : "เลือกไฟล์ที่ต้องการแนบ",
     "Confirm" : "ยืนยัน",
+    "Revoke" : "เพิกถอน",
     "Favorite" : "รายการโปรด",
     "Read" : "อ่าน",
     "Edit tags" : "แก้ไขแท็ก",
@@ -78,6 +79,7 @@ OC.L10N.register(
     "Custom" : "กำหนดเอง",
     "Tag already exists" : "มีแท็กอยู่แล้ว",
     "Not found" : "ไม่พบ",
+    "To:" : "ถึง:",
     "Deleted" : "ลบแล้ว",
     "Help" : "ช่วยเหลือ",
     "Actions" : "การกระทำ",
@@ -105,10 +107,6 @@ OC.L10N.register(
     "Sent" : "ส่งแล้ว",
     "Trash" : "ถังขยะ",
     "{from}\n{subject}" : "{from}\n{subject}",
-    "Error loading message" : "เกิดข้อผิดพลาดขณะโหลดข้อความ",
-    "Redirect" : "เปลี่ยนเส้นทาง",
-    "The link leads to %s" : "ลิงก์จะนำไปยัง %s",
-    "Continue to %s" : "ดำเนินการต่อไปที่ %s",
-    "Last 7 days" : "ภายใน 7 วัน"
+    "Error loading message" : "เกิดข้อผิดพลาดขณะโหลดข้อความ"
 },
 "nplurals=1; plural=0;");

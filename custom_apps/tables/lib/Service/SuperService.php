@@ -16,9 +16,17 @@ class SuperService {
 
 	protected ?string $userId;
 
+	protected bool $isPublicContext = false;
+
 	public function __construct(LoggerInterface $logger, ?string $userId, PermissionsService $permissionsService) {
 		$this->permissionsService = $permissionsService;
 		$this->logger = $logger;
 		$this->userId = $userId;
+	}
+
+	public function setPublicContext(): void {
+		$this->userId = '';
+		$this->isPublicContext = true;
+		$this->permissionsService->setPublicContext();
 	}
 }

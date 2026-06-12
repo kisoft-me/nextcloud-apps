@@ -27,6 +27,9 @@ use function implode;
 use function json_encode;
 
 class IMAPClientFactory {
+	/** @var array<string, int> */
+	private array $loginCounts = [];
+
 	/** @var ICrypto */
 	private $crypto;
 
@@ -129,12 +132,12 @@ class IMAPClientFactory {
 				'backend' => $this->hordeCacheFactory->newCache($account),
 			];
 		}
-		if ($account->getDebug() || $this->config->getSystemValueBool('app.mail.debug')) {
-			$fn = 'mail-' . $account->getUserId() . '-' . $account->getId() . '-imap.log';
+		if ($account->getMailAccount()->getDebug() || $this->config->getSystemValueBool('app.mail.debug')) {
+			$fn = "mail-{$account->getUserId()}-{$account->getId()}-imap.log";
 			$params['debug'] = $this->config->getSystemValue('datadirectory') . '/' . $fn;
 		}
 
-		$client = new HordeImapClient($params);
+		$client = new HordeImapClient($params, $this);
 
 		$rateLimitingCache = $this->cacheFactory->createDistributed('mail_imap_ratelimit');
 		if ($rateLimitingCache instanceof IMemcache) {
@@ -142,5 +145,14 @@ class IMAPClientFactory {
 		}
 
 		return $client;
+	}
+
+	public function recordLogin(string $host): void {
+		$this->loginCounts[$host] = ($this->loginCounts[$host] ?? 0) + 1;
+	}
+
+	/** @return array<string, int> */
+	public function getLoginStats(): array {
+		return $this->loginCounts;
 	}
 }

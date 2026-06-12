@@ -1,1 +1,1 @@
-(self.webpackChunkdeck=self.webpackChunkdeck||[]).push([["_b2fd"],{28986:()=>{}}]);
+(self.webpackChunkdeck=self.webpackChunkdeck||[]).push([["_b2fd"],{28986(){}}]);

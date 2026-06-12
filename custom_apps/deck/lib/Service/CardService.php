@@ -274,7 +274,6 @@ class CardService {
 		$card->setStackId($stackId);
 		$card->setType($type);
 		$card->setOrder($order);
-		$card->setOwner($owner);
 		$card->setDuedate($duedate ? new \DateTime($duedate) : null);
 		$resetDuedateNotification = false;
 		if (
@@ -374,8 +373,11 @@ class CardService {
 			}
 			$this->assignmentService->assignUser($newCard->getId(), $assignement->getParticipant());
 		}
-		$newCard->setDescription($originCard->getDescription());
-		$card = $this->enrichCards([$this->cardMapper->update($newCard)]);
+
+		$freshCard = $this->cardMapper->find($newCard->getId());
+		$freshCard->setDescription($originCard->getDescription());
+		$card = $this->enrichCards([$this->cardMapper->update($freshCard)]);
+
 		return $card[0];
 	}
 

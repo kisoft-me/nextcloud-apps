@@ -26,9 +26,9 @@ Share your tables and views with users and groups within your cloud.
 Have a good time and manage whatever you want.
 
 ]]></description>
-	<version>2.0.1</version>
-	<licence>agpl</licence>
-	<author mail="florian.steffens@nextcloud.com">Florian Steffens</author>
+	<version>2.2.0</version>
+	<licence>AGPL-3.0-or-later</licence>
+	<author>Nextcloud GmbH and Nextcloud contributors</author>
 	<namespace>Tables</namespace>
 	<documentation>
 		<user>https://github.com/nextcloud/tables/wiki</user>
@@ -53,6 +53,7 @@ Have a good time and manage whatever you want.
 	<repair-steps>
 		<pre-migration>
 			<step>OCA\Tables\Migration\FixContextsDefaults</step>
+            <step>OCA\Tables\Migration\ResetPublicSharePermissions</step>
 		</pre-migration>
 		<post-migration>
 			<step>OCA\Tables\Migration\NewDbStructureRepairStep</step>

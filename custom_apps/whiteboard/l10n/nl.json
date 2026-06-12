@@ -27,11 +27,15 @@
     "Add a comment" : "Reactie toevoegen",
     "Send" : "Verzenden",
     "No comments yet" : "Nog geen reacties",
+    "replies" : "antwoorden",
     "Offline" : "Offline",
     "Connecting" : "Verbinden",
     "Online" : "Online",
     "Unknown" : "Onbekend",
+    "LIVE" : "LIVE",
     "Stop" : "Stop",
+    "Following" : "Volgend",
+    "Follow" : "Volgen",
     "Duration" : "Duur",
     "Stop recording" : "Beëindig opname",
     "Unknown user" : "Onbekende gebruiker",
@@ -56,6 +60,10 @@
     "Smart picker" : "Smart Picker",
     "Version {version}" : "Versie {version}",
     "Version restored" : "Versie hersteld",
-    "Just now" : "Zojuist"
+    "Just now" : "Zojuist",
+    "minute ago" : "minuut geleden",
+    "minutes ago" : "minuten geleden",
+    "hour ago" : "uur geleden",
+    "hours ago" : "uren geleden"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

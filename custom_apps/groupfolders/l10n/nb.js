@@ -1,6 +1,7 @@
 OC.L10N.register(
     "groupfolders",
     {
+    "Unset" : "Ikke satt",
     "Denied (Inherited permission)" : "Nektet (arvet rettighet)",
     "Allowed (Inherited permission)" : "Tillatt (arvet rettighet)",
     "Denied" : "Nektet",
@@ -30,12 +31,12 @@ OC.L10N.register(
     "Advanced Permissions" : "Avanserte rettigheter",
     "Previous" : "Forrige",
     "Next" : "Neste",
+    "Page:" : "Side:",
     "User" : "Bruker",
     "Unknown" : "Ukjent",
     "None" : "Ingen",
     "{size} used" : "{size} brukt",
     "Other …" : "Annet…",
-    "Unset" : "Ikke satt",
     "Select a user or group" : "Velg en bruker eller gruppe",
     "Permission denied. User does not have sufficient permissions." : "Tillatelse nektet. Brukeren har ikke tilstrekkelige tillatelser.",
     "Unexpected status from server" : "Uventet status fra server"

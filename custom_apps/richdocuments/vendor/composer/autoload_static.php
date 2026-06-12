@@ -36,6 +36,10 @@ class ComposerStaticInitRichdocuments
         array (
             'OCA\\Richdocuments\\' => 18,
         ),
+        'N' =>
+        array (
+            'Nette\\' => 6,
+        ),
         'L' =>
         array (
             'League\\Config\\' => 14,
@@ -79,6 +83,11 @@ class ComposerStaticInitRichdocuments
         'OCA\\Richdocuments\\' =>
         array (
             0 => __DIR__ . '/../..' . '/lib',
+        ),
+        'Nette\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/nette/schema/src',
+            1 => __DIR__ . '/..' . '/nette/utils/src',
         ),
         'League\\Config\\' =>
         array (
@@ -262,6 +271,10 @@ class ComposerStaticInitRichdocuments
         'League\\CommonMark\\Extension\\HeadingPermalink\\HeadingPermalinkExtension' => __DIR__ . '/..' . '/league/commonmark/src/Extension/HeadingPermalink/HeadingPermalinkExtension.php',
         'League\\CommonMark\\Extension\\HeadingPermalink\\HeadingPermalinkProcessor' => __DIR__ . '/..' . '/league/commonmark/src/Extension/HeadingPermalink/HeadingPermalinkProcessor.php',
         'League\\CommonMark\\Extension\\HeadingPermalink\\HeadingPermalinkRenderer' => __DIR__ . '/..' . '/league/commonmark/src/Extension/HeadingPermalink/HeadingPermalinkRenderer.php',
+        'League\\CommonMark\\Extension\\Highlight\\HighlightExtension' => __DIR__ . '/..' . '/league/commonmark/src/Extension/Highlight/HighlightExtension.php',
+        'League\\CommonMark\\Extension\\Highlight\\Mark' => __DIR__ . '/..' . '/league/commonmark/src/Extension/Highlight/Mark.php',
+        'League\\CommonMark\\Extension\\Highlight\\MarkDelimiterProcessor' => __DIR__ . '/..' . '/league/commonmark/src/Extension/Highlight/MarkDelimiterProcessor.php',
+        'League\\CommonMark\\Extension\\Highlight\\MarkRenderer' => __DIR__ . '/..' . '/league/commonmark/src/Extension/Highlight/MarkRenderer.php',
         'League\\CommonMark\\Extension\\InlinesOnly\\ChildRenderer' => __DIR__ . '/..' . '/league/commonmark/src/Extension/InlinesOnly/ChildRenderer.php',
         'League\\CommonMark\\Extension\\InlinesOnly\\InlinesOnlyExtension' => __DIR__ . '/..' . '/league/commonmark/src/Extension/InlinesOnly/InlinesOnlyExtension.php',
         'League\\CommonMark\\Extension\\Mention\\Generator\\CallbackGenerator' => __DIR__ . '/..' . '/league/commonmark/src/Extension/Mention/Generator/CallbackGenerator.php',
@@ -559,6 +572,7 @@ class ComposerStaticInitRichdocuments
         'OCA\\Richdocuments\\Service\\SlideDeckService' => __DIR__ . '/../..' . '/lib/Service/SlideDeckService.php',
         'OCA\\Richdocuments\\Service\\TemplateFieldService' => __DIR__ . '/../..' . '/lib/Service/TemplateFieldService.php',
         'OCA\\Richdocuments\\Service\\UserScopeService' => __DIR__ . '/../..' . '/lib/Service/UserScopeService.php',
+        'OCA\\Richdocuments\\Service\\WopiRateLimitService' => __DIR__ . '/../..' . '/lib/Service/WopiRateLimitService.php',
         'OCA\\Richdocuments\\Settings\\Admin' => __DIR__ . '/../..' . '/lib/Settings/Admin.php',
         'OCA\\Richdocuments\\Settings\\Personal' => __DIR__ . '/../..' . '/lib/Settings/Personal.php',
         'OCA\\Richdocuments\\Settings\\Section' => __DIR__ . '/../..' . '/lib/Settings/Section.php',
@@ -940,6 +954,7 @@ class ComposerStaticInitRichdocuments
         'phpseclib3\\Math\\Common\\FiniteField\\Integer' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Math/Common/FiniteField/Integer.php',
         'phpseclib3\\Math\\PrimeField' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Math/PrimeField.php',
         'phpseclib3\\Math\\PrimeField\\Integer' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Math/PrimeField/Integer.php',
+        'phpseclib3\\Net\\SCP' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SCP.php',
         'phpseclib3\\Net\\SFTP' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SFTP.php',
         'phpseclib3\\Net\\SFTP\\Stream' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SFTP/Stream.php',
         'phpseclib3\\Net\\SSH2' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SSH2.php',

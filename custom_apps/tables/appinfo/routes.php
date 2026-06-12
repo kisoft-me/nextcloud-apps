@@ -7,7 +7,6 @@
 
 return [
 	'routes' => [
-
 		// enable CORS for api calls
 		['name' => 'api1#preflighted_cors', 'url' => '/api/1/{path}',
 			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']],
@@ -94,21 +93,28 @@ return [
 		// shares
 		['name' => 'share#index', 'url' => '/share/table/{tableId}', 'verb' => 'GET'],
 		['name' => 'share#indexView', 'url' => '/share/view/{viewId}', 'verb' => 'GET'],
+		['name' => 'share#sharePolicy', 'url' => '/share/policy', 'verb' => 'GET'],
 		['name' => 'share#show', 'url' => '/share/{id}', 'verb' => 'GET'],
 		['name' => 'share#create', 'url' => '/share', 'verb' => 'POST'],
 		['name' => 'share#updatePermission', 'url' => '/share/{id}/permission', 'verb' => 'PUT'],
+		['name' => 'share#updatePermissions', 'url' => '/share/{id}/permissions', 'verb' => 'PUT'],
 		['name' => 'share#updateDisplayMode', 'url' => '/share/{id}/display-mode', 'verb' => 'PUT'],
 		['name' => 'share#destroy', 'url' => '/share/{id}', 'verb' => 'DELETE'],
 
 		// import
 		['name' => 'import#previewImportTable', 'url' => '/import-preview/table/{tableId}', 'verb' => 'POST'],
-		['name' => 'import#importInTable', 'url' => '/import/table/{tableId}', 'verb' => 'POST'],
+		['name' => 'import#importV2InTable', 'url' => '/v2/import/table/{tableId}', 'verb' => 'POST'],
+		['name' => 'import#importV2InView', 'url' => '/v2/import/view/{viewId}', 'verb' => 'POST'],
 		['name' => 'import#previewImportView', 'url' => '/import-preview/view/{viewId}', 'verb' => 'POST'],
-		['name' => 'import#importInView', 'url' => '/import/view/{viewId}', 'verb' => 'POST'],
 		['name' => 'import#previewUploadImportTable', 'url' => '/importupload-preview/table/{tableId}', 'verb' => 'POST'],
-		['name' => 'import#importUploadInTable', 'url' => '/importupload/table/{tableId}', 'verb' => 'POST'],
 		['name' => 'import#previewUploadImportView', 'url' => '/importupload-preview/view/{viewId}', 'verb' => 'POST'],
+		['name' => 'import#importV2UploadInTable', 'url' => '/v2/importupload/table/{tableId}', 'verb' => 'POST'],
+		['name' => 'import#importV2UploadInView', 'url' => '/v2/importupload/view/{viewId}', 'verb' => 'POST'],
+		// deprecated endpoints
+		['name' => 'import#importUploadInTable', 'url' => '/importupload/table/{tableId}', 'verb' => 'POST'],
 		['name' => 'import#importUploadInView', 'url' => '/importupload/view/{viewId}', 'verb' => 'POST'],
+		['name' => 'import#importInTable', 'url' => '/import/table/{tableId}', 'verb' => 'POST'],
+		['name' => 'import#importInView', 'url' => '/import/view/{viewId}', 'verb' => 'POST'],
 
 		// search
 		['name' => 'search#all', 'url' => '/search/all', 'verb' => 'GET'],

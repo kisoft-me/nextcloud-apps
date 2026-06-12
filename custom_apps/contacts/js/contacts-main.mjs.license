@@ -31,19 +31,19 @@ This file is generated from multiple sources. Included packages:
 	- version: 7.4.47
 	- license: Apache-2.0
 - @nextcloud/vue
-	- version: 9.5.0
+	- version: 9.8.2
 	- license: AGPL-3.0-or-later
 - @vue/compiler-core
-	- version: 3.5.28
+	- version: 3.5.34
 	- license: MIT
 - @vue/compiler-dom
-	- version: 3.5.28
+	- version: 3.5.34
 	- license: MIT
 - @vue/runtime-dom
-	- version: 3.5.28
+	- version: 3.5.34
 	- license: MIT
 - @vue/shared
-	- version: 3.5.28
+	- version: 3.5.34
 	- license: MIT
 - color-name
 	- version: 1.1.3
@@ -52,7 +52,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 1.9.1
 	- license: MIT
 - contacts
-	- version: 8.4.4
+	- version: 8.7.0
 	- license: agpl
 - cropperjs
 	- version: 1.6.2
@@ -118,7 +118,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 2.30.1
 	- license: MIT
 - qreator
-	- version: 9.7.2
+	- version: 9.9.0
 	- license: MIT
 - simple-swizzle
 	- version: 0.2.2
@@ -127,10 +127,10 @@ This file is generated from multiple sources. Included packages:
 	- version: 3.0.1
 	- license: MIT
 - virtua
-	- version: 0.48.6
+	- version: 0.49.1
 	- license: MIT
 - vue
-	- version: 3.5.28
+	- version: 3.5.34
 	- license: MIT
 - vue-cropperjs
 	- version: 5.0.0
@@ -142,5 +142,5 @@ This file is generated from multiple sources. Included packages:
 	- version: 4.6.4
 	- license: MIT
 - vue-router
-	- version: 5.0.2
+	- version: 5.1.0
 	- license: MIT

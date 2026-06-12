@@ -13,6 +13,7 @@ use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
+use OCP\Files\NotFoundException;
 use OCP\IDBConnection;
 use OCP\IUserSession;
 use OCP\Share\IManager;
@@ -59,16 +60,22 @@ class NoteUtil {
 		return $this->tagService;
 	}
 
-	public function getCategoryFolder(Folder $notesFolder, string $category) {
-		$path = $notesFolder->getPath();
-		// sanitise path
+	public function normalizeCategoryPath(string $category) : string {
 		$cats = explode('/', $category);
 		$cats = array_map([$this, 'sanitisePath'], $cats);
 		$cats = array_filter($cats, function ($str) {
 			return $str !== '';
 		});
-		$path .= '/' . implode('/', $cats);
-		return $this->getOrCreateFolder($path);
+		return implode('/', $cats);
+	}
+
+	public function getCategoryFolder(Folder $notesFolder, string $category, bool $create = true) : Folder {
+		$path = $notesFolder->getPath();
+		$normalized = $this->normalizeCategoryPath($category);
+		if ($normalized !== '') {
+			$path .= '/' . $normalized;
+		}
+		return $this->getOrCreateFolder($path, $create);
 	}
 
 	/**
@@ -196,12 +203,20 @@ class NoteUtil {
 	public function getOrCreateNotesFolder(string $userId, bool $create = true) : Folder {
 		$userFolder = $this->getRoot()->getUserFolder($userId);
 		$notesPath = $this->settingsService->get($userId, 'notesPath');
-		$allowShared = $notesPath !== $this->settingsService->getDefaultNotesPath($userId);
 
-		$folder = null;
+		['path' => $defaultPath, 'folder' => $folder] = $this->settingsService->getDefaultNotesNode($userId);
+		$allowShared = $notesPath !== $defaultPath;
+
+		if ($allowShared) {
+			try {
+				$folder = $userFolder->get($notesPath);
+			} catch (NotFoundException) {
+				$folder = null;
+			}
+		}
+
 		$updateNotesPath = false;
-		if ($userFolder->nodeExists($notesPath)) {
-			$folder = $userFolder->get($notesPath);
+		if ($folder instanceof Folder) {
 			if (!$allowShared && $folder->isShared()) {
 				$notesPath = $userFolder->getNonExistingName($notesPath);
 				$folder = $userFolder->newFolder($notesPath);

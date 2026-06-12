@@ -14,6 +14,7 @@ use OCA\Mail\Exception\ClientException;
 use OCA\Mail\Http\JsonResponse;
 use OCA\Mail\Http\TrapError;
 use OCA\Mail\Service\AccountService;
+use OCA\Mail\Service\DelegationService;
 use OCA\Mail\Service\DraftsService;
 use OCA\Mail\Service\SmimeService;
 use OCP\AppFramework\Controller;
@@ -30,21 +31,24 @@ class DraftsController extends Controller {
 	private AccountService $accountService;
 	private ITimeFactory $timeFactory;
 	private SmimeService $smimeService;
+	private DelegationService $delegationService;
 
 
 	public function __construct(string $appName,
-		$UserId,
+		$userId,
 		IRequest $request,
 		DraftsService $service,
 		AccountService $accountService,
 		ITimeFactory $timeFactory,
-		SmimeService $smimeService) {
+		SmimeService $smimeService,
+		DelegationService $delegationService) {
 		parent::__construct($appName, $request);
-		$this->userId = $UserId;
+		$this->userId = $userId;
 		$this->service = $service;
 		$this->accountService = $accountService;
 		$this->timeFactory = $timeFactory;
 		$this->smimeService = $smimeService;
+		$this->delegationService = $delegationService;
 	}
 
 	/**
@@ -93,7 +97,8 @@ class DraftsController extends Controller {
 		?int $draftId = null,
 		bool $requestMdn = false,
 		bool $isPgpMime = false) : JsonResponse {
-		$account = $this->accountService->find($this->userId, $accountId);
+		$effectiveUserId = $this->delegationService->resolveAccountUserId($accountId, $this->userId);
+		$account = $this->accountService->find($effectiveUserId, $accountId);
 		if ($draftId !== null) {
 			$this->service->handleDraft($account, $draftId);
 		}
@@ -115,12 +120,13 @@ class DraftsController extends Controller {
 		$message->setPgpMime($isPgpMime);
 
 		if (!empty($smimeCertificateId)) {
-			$smimeCertificate = $this->smimeService->findCertificate($smimeCertificateId, $this->userId);
+			$smimeCertificate = $this->smimeService->findCertificate($smimeCertificateId, $effectiveUserId);
 			$message->setSmimeCertificateId($smimeCertificate->getId());
 		}
 
 		$this->service->saveMessage($account, $message, $to, $cc, $bcc, $attachments);
-
+		$id = $message->getId();
+		$this->delegationService->logDelegatedAction($this->userId, $effectiveUserId, "$this->userId created draft: $id  on behalf of $effectiveUserId");
 		return JsonResponse::success($message, Http::STATUS_CREATED);
 	}
 
@@ -165,8 +171,9 @@ class DraftsController extends Controller {
 		?int $sendAt = null,
 		bool $requestMdn = false,
 		bool $isPgpMime = false): JsonResponse {
-		$message = $this->service->getMessage($id, $this->userId);
-		$account = $this->accountService->find($this->userId, $accountId);
+		$effectiveUserId = $this->delegationService->resolveLocalMessageUserId($id, $this->userId);
+		$message = $this->service->getMessage($id, $effectiveUserId);
+		$account = $this->accountService->find($effectiveUserId, $accountId);
 
 		$message->setType(LocalMessage::TYPE_DRAFT);
 		$message->setAccountId($accountId);
@@ -186,7 +193,7 @@ class DraftsController extends Controller {
 		$message->setPgpMime($isPgpMime);
 
 		if (!empty($smimeCertificateId)) {
-			$smimeCertificate = $this->smimeService->findCertificate($smimeCertificateId, $this->userId);
+			$smimeCertificate = $this->smimeService->findCertificate($smimeCertificateId, $effectiveUserId);
 			$message->setSmimeCertificateId($smimeCertificate->getId());
 		}
 
@@ -202,10 +209,12 @@ class DraftsController extends Controller {
 	 */
 	#[TrapError]
 	public function destroy(int $id): JsonResponse {
-		$message = $this->service->getMessage($id, $this->userId);
-		$this->accountService->find($this->userId, $message->getAccountId());
+		$effectiveUserId = $this->delegationService->resolveLocalMessageUserId($id, $this->userId);
+		$message = $this->service->getMessage($id, $effectiveUserId);
+		$this->accountService->find($effectiveUserId, $message->getAccountId());
 
-		$this->service->deleteMessage($this->userId, $message);
+		$this->service->deleteMessage($effectiveUserId, $message);
+		$this->delegationService->logDelegatedAction($this->userId, $effectiveUserId, "$this->userId deleted draft: $id  on behalf of $effectiveUserId");
 		return JsonResponse::success('Message deleted', Http::STATUS_ACCEPTED);
 	}
 
@@ -217,10 +226,12 @@ class DraftsController extends Controller {
 	 */
 	#[TrapError]
 	public function move(int $id): JsonResponse {
-		$message = $this->service->getMessage($id, $this->userId);
-		$account = $this->accountService->find($this->userId, $message->getAccountId());
+		$effectiveUserId = $this->delegationService->resolveLocalMessageUserId($id, $this->userId);
+		$message = $this->service->getMessage($id, $effectiveUserId);
+		$account = $this->accountService->find($effectiveUserId, $message->getAccountId());
 
 		$this->service->sendMessage($message, $account);
+		$this->delegationService->logDelegatedAction($this->userId, $effectiveUserId, "$this->userId moved draft: $id to the IMAP server on behalf of $effectiveUserId");
 		return  JsonResponse::success(
 			'Message moved to IMAP', Http::STATUS_ACCEPTED
 		);

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit2d2313274cf6595dd5b6fcf5a69e1eb8
+class ComposerStaticInit22888eddc0a1d9e115a52e0366dd5401
 {
     public static $prefixLengthsPsr4 = array (
         'O' =>
@@ -52,6 +52,7 @@ class ComposerStaticInit2d2313274cf6595dd5b6fcf5a69e1eb8
         'OCA\\Tables\\Api\\V1Api' => __DIR__ . '/../..' . '/lib/Api/V1Api.php',
         'OCA\\Tables\\AppInfo\\Application' => __DIR__ . '/../..' . '/lib/AppInfo/Application.php',
         'OCA\\Tables\\BackgroundJob\\ConvertViewColumnsFormat' => __DIR__ . '/../..' . '/lib/BackgroundJob/ConvertViewColumnsFormat.php',
+        'OCA\\Tables\\BackgroundJob\\ImportTableJob' => __DIR__ . '/../..' . '/lib/BackgroundJob/ImportTableJob.php',
         'OCA\\Tables\\Capabilities' => __DIR__ . '/../..' . '/lib/Capabilities.php',
         'OCA\\Tables\\Command\\AddTable' => __DIR__ . '/../..' . '/lib/Command/AddTable.php',
         'OCA\\Tables\\Command\\ChangeOwnershipTable' => __DIR__ . '/../..' . '/lib/Command/ChangeOwnershipTable.php',
@@ -172,6 +173,7 @@ class ComposerStaticInit2d2313274cf6595dd5b6fcf5a69e1eb8
         'OCA\\Tables\\Migration\\DbRowSleeveSequence' => __DIR__ . '/../..' . '/lib/Migration/DbRowSleeveSequence.php',
         'OCA\\Tables\\Migration\\FixContextsDefaults' => __DIR__ . '/../..' . '/lib/Migration/FixContextsDefaults.php',
         'OCA\\Tables\\Migration\\NewDbStructureRepairStep' => __DIR__ . '/../..' . '/lib/Migration/NewDbStructureRepairStep.php',
+        'OCA\\Tables\\Migration\\ResetPublicSharePermissions' => __DIR__ . '/../..' . '/lib/Migration/ResetPublicSharePermissions.php',
         'OCA\\Tables\\Migration\\Version000000Date20210921000000' => __DIR__ . '/../..' . '/lib/Migration/Version000000Date20210921000000.php',
         'OCA\\Tables\\Migration\\Version000200Date20220428000000' => __DIR__ . '/../..' . '/lib/Migration/Version000200Date20220428000000.php',
         'OCA\\Tables\\Migration\\Version000203Date20230124000000' => __DIR__ . '/../..' . '/lib/Migration/Version000203Date20230124000000.php',
@@ -189,9 +191,12 @@ class ComposerStaticInit2d2313274cf6595dd5b6fcf5a69e1eb8
         'OCA\\Tables\\Migration\\Version001000Date20240328000000' => __DIR__ . '/../..' . '/lib/Migration/Version001000Date20240328000000.php',
         'OCA\\Tables\\Migration\\Version001000Date20250720000000' => __DIR__ . '/../..' . '/lib/Migration/Version001000Date20250720000000.php',
         'OCA\\Tables\\Migration\\Version1000Date20251208192653' => __DIR__ . '/../..' . '/lib/Migration/Version1000Date20251208192653.php',
+        'OCA\\Tables\\Migration\\Version1000Date20260324000000' => __DIR__ . '/../..' . '/lib/Migration/Version1000Date20260324000000.php',
+        'OCA\\Tables\\Migration\\Version2010Date20260414000000' => __DIR__ . '/../..' . '/lib/Migration/Version2010Date20260414000000.php',
         'OCA\\Tables\\Model\\ColumnSettings' => __DIR__ . '/../..' . '/lib/Model/ColumnSettings.php',
         'OCA\\Tables\\Model\\FilterGroup' => __DIR__ . '/../..' . '/lib/Model/FilterGroup.php',
         'OCA\\Tables\\Model\\FilterSet' => __DIR__ . '/../..' . '/lib/Model/FilterSet.php',
+        'OCA\\Tables\\Model\\ImportStats' => __DIR__ . '/../..' . '/lib/Model/ImportStats.php',
         'OCA\\Tables\\Model\\Permissions' => __DIR__ . '/../..' . '/lib/Model/Permissions.php',
         'OCA\\Tables\\Model\\Public\\Row' => __DIR__ . '/../..' . '/lib/Model/Public/Row.php',
         'OCA\\Tables\\Model\\RowDataInput' => __DIR__ . '/../..' . '/lib/Model/RowDataInput.php',
@@ -234,8 +239,10 @@ class ComposerStaticInit2d2313274cf6595dd5b6fcf5a69e1eb8
         'OCA\\Tables\\Service\\Support\\DefaultAuditLogService' => __DIR__ . '/../..' . '/lib/Service/Support/DefaultAuditLogService.php',
         'OCA\\Tables\\Service\\TableService' => __DIR__ . '/../..' . '/lib/Service/TableService.php',
         'OCA\\Tables\\Service\\TableTemplateService' => __DIR__ . '/../..' . '/lib/Service/TableTemplateService.php',
+        'OCA\\Tables\\Service\\ValueObject\\ColumnOrderInformation' => __DIR__ . '/../..' . '/lib/Service/ValueObject/ColumnOrderInformation.php',
         'OCA\\Tables\\Service\\ValueObject\\Emoji' => __DIR__ . '/../..' . '/lib/Service/ValueObject/Emoji.php',
         'OCA\\Tables\\Service\\ValueObject\\Filter' => __DIR__ . '/../..' . '/lib/Service/ValueObject/Filter.php',
+        'OCA\\Tables\\Service\\ValueObject\\ShareCreate' => __DIR__ . '/../..' . '/lib/Service/ValueObject/ShareCreate.php',
         'OCA\\Tables\\Service\\ValueObject\\ShareToken' => __DIR__ . '/../..' . '/lib/Service/ValueObject/ShareToken.php',
         'OCA\\Tables\\Service\\ValueObject\\SortRule' => __DIR__ . '/../..' . '/lib/Service/ValueObject/SortRule.php',
         'OCA\\Tables\\Service\\ValueObject\\Title' => __DIR__ . '/../..' . '/lib/Service/ValueObject/Title.php',
@@ -245,6 +252,7 @@ class ComposerStaticInit2d2313274cf6595dd5b6fcf5a69e1eb8
         'OCA\\Tables\\UploadException' => __DIR__ . '/../..' . '/lib/UploadException.php',
         'OCA\\Tables\\UserMigration\\TableMigratorException' => __DIR__ . '/../..' . '/lib/UserMigration/TableMigratorException.php',
         'OCA\\Tables\\UserMigration\\TablesMigrator' => __DIR__ . '/../..' . '/lib/UserMigration/TablesMigrator.php',
+        'OCA\\Tables\\Validation\\ColumnDtoValidator' => __DIR__ . '/../..' . '/lib/Validation/ColumnDtoValidator.php',
         'OCA\\Tables\\Vendor\\Complex\\Complex' => __DIR__ . '/../..' . '/lib/Vendor/Complex/Complex.php',
         'OCA\\Tables\\Vendor\\Complex\\Exception' => __DIR__ . '/../..' . '/lib/Vendor/Complex/Exception.php',
         'OCA\\Tables\\Vendor\\Complex\\Functions' => __DIR__ . '/../..' . '/lib/Vendor/Complex/Functions.php',
@@ -848,9 +856,9 @@ class ComposerStaticInit2d2313274cf6595dd5b6fcf5a69e1eb8
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit2d2313274cf6595dd5b6fcf5a69e1eb8::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit2d2313274cf6595dd5b6fcf5a69e1eb8::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit2d2313274cf6595dd5b6fcf5a69e1eb8::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit22888eddc0a1d9e115a52e0366dd5401::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit22888eddc0a1d9e115a52e0366dd5401::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit22888eddc0a1d9e115a52e0366dd5401::$classMap;
 
         }, null, ClassLoader::class);
     }

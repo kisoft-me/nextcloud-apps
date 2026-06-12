@@ -5,6 +5,132 @@
 
 # Changelog
 
+## 2.2.0
+
+### Added
+* [Enhancement: Make tables import asynchronous (tables#1801)](https://github.com/nextcloud/tables/pull/1801)
+* [📚❌ Add copy/delete row actions (tables#2456)](https://github.com/nextcloud/tables/pull/2456)
+* [📦 Add all/filtered/selected CSV export actions (tables#2485)](https://github.com/nextcloud/tables/pull/2485)
+* [Style(icon): Use outline variant (tables#2599)](https://github.com/nextcloud/tables/pull/2599)
+* [🎨 Icons should be outline-variant where possible (tables#2672)](https://github.com/nextcloud/tables/pull/2672)
+
+### Fixed
+* [Fix monochrome icon coloring for activities (tables#2675)](https://github.com/nextcloud/tables/pull/2675)
+* [Fix: handle first option select (tables#2582)](https://github.com/nextcloud/tables/pull/2582)
+* [Fix: Prevent editing when clicking on links in TableCellLink (tables#2587)](https://github.com/nextcloud/tables/pull/2587)
+* [Fix: smartpicker fix row actions and action button z-index (tables#2679)](https://github.com/nextcloud/tables/pull/2679)
+* [Fix: view filter (tables#2688)](https://github.com/nextcloud/tables/pull/2688)
+
+### Dependencies
+* [Chore(deps): update actions/checkout action to v5.0.1 (main) (tables#2560)](https://github.com/nextcloud/tables/pull/2560)
+* [Fix(deps): update dependency dompurify to ^3.4.2 (main) (tables#2565)](https://github.com/nextcloud/tables/pull/2565)
+* [Fix(deps): update dependency @nextcloud/axios to ^2.6.0 (main) (tables#2566)](https://github.com/nextcloud/tables/pull/2566)
+* [Chore(deps): update dependency cypress to ^15.14.2 (main) (tables#2584)](https://github.com/nextcloud/tables/pull/2584)
+* [Chore(deps): update dependency cypress-vite to ^1.10.0 (main) (tables#2585)](https://github.com/nextcloud/tables/pull/2585)
+* [Build(deps-dev): Bump @babel/plugin-transform-modules-systemjs from 7.28.5 to 7.29.4 (tables#2588)](https://github.com/nextcloud/tables/pull/2588)
+* [[main] Update nextcloud/ocp dependency (tables#2589)](https://github.com/nextcloud/tables/pull/2589)
+* [Fix(deps): update tiptap to ^3.22.5 (main) (tables#2591)](https://github.com/nextcloud/tables/pull/2591)
+* [Fix(deps): update dependency @nextcloud/vue to ^8.38.0 (main) (tables#2592)](https://github.com/nextcloud/tables/pull/2592)
+* [Chore(deps): update hmarr/auto-approve-action action to v4 (main) (tables#2600)](https://github.com/nextcloud/tables/pull/2600)
+* [Chore(deps): update nextcloud/pr-feedback-action digest to 5227c55 (main) (tables#2604)](https://github.com/nextcloud/tables/pull/2604)
+* [Chore(deps): update shivammathur/setup-php digest to 7c071df (main) (tables#2605)](https://github.com/nextcloud/tables/pull/2605)
+* [Chore(deps): update dependency @rollup/rollup-linux-x64-gnu to ^4.60.3 (main) (tables#2606)](https://github.com/nextcloud/tables/pull/2606)
+* [Chore(deps): update dependency staabm/annotate-pull-request-from-checkstyle to ^1.8.7 (main) (tables#2607)](https://github.com/nextcloud/tables/pull/2607)
+* [Chore(deps): update dependency vite to ^7.3.3 (main) (tables#2608)](https://github.com/nextcloud/tables/pull/2608)
+* [Chore(deps): update icewind1991/nextcloud-version-matrix action to v1.3.2 (main) (tables#2609)](https://github.com/nextcloud/tables/pull/2609)
+* [Chore(deps): update actions/setup-node action to v6.4.0 (main) (tables#2610)](https://github.com/nextcloud/tables/pull/2610)
+* [Chore(deps): update cypress-io/github-action action to v7.3.0 (main) (tables#2611)](https://github.com/nextcloud/tables/pull/2611)
+* [Chore(deps): update shivammathur/setup-php action to v2.37.0 (main) (tables#2613)](https://github.com/nextcloud/tables/pull/2613)
+* [Chore(deps): update actions/checkout action to v6 (main) (tables#2614)](https://github.com/nextcloud/tables/pull/2614)
+* [Chore(deps): update actions/github-script action to v9 (main) (tables#2615)](https://github.com/nextcloud/tables/pull/2615)
+* [Chore(deps): update actions/upload-artifact action to v7 (main) (tables#2616)](https://github.com/nextcloud/tables/pull/2616)
+* [Chore(deps): update dorny/paths-filter action to v4 (main) (tables#2617)](https://github.com/nextcloud/tables/pull/2617)
+* [Feat(deps): Add Nextcloud 35 support (tables#2651)](https://github.com/nextcloud/tables/pull/2651)
+* [Chore(deps): update dependency @rollup/rollup-linux-x64-gnu to ^4.60.4 (main) (tables#2653)](https://github.com/nextcloud/tables/pull/2653)
+* [Chore(deps): update shivammathur/setup-php action to v2.37.1 (main) (tables#2654)](https://github.com/nextcloud/tables/pull/2654)
+* [Fix(deps): update dependency dompurify to ^3.4.3 (main) (tables#2655)](https://github.com/nextcloud/tables/pull/2655)
+* [Fix(deps): update tiptap to ^3.23.2 (main) (tables#2656)](https://github.com/nextcloud/tables/pull/2656)
+* [Chore(deps): update dependency cypress to ^15.15.0 (main) (tables#2657)](https://github.com/nextcloud/tables/pull/2657)
+* [Chore: Sync lock file (tables#2662)](https://github.com/nextcloud/tables/pull/2662)
+* [[main] Update nextcloud/ocp dependency (tables#2663)](https://github.com/nextcloud/tables/pull/2663)
+* [Chore(deps): bump @nextcloud/vue from 8.38.0 to 8.39.0 (tables#2665)](https://github.com/nextcloud/tables/pull/2665)
+* [Fix: Use UnknownActivityException (tables#2666)](https://github.com/nextcloud/tables/pull/2666)
+* [Fix(deps): update dependency dompurify to ^3.4.5 (main) (tables#2673)](https://github.com/nextcloud/tables/pull/2673)
+* [Chore(deps): update dependency @playwright/test to ^1.60.0 (main) (tables#2674)](https://github.com/nextcloud/tables/pull/2674)
+* [Fix(deps): update tiptap to ^3.23.4 (main) (tables#2676)](https://github.com/nextcloud/tables/pull/2676)
+* [Chore(deps): update dependency nextcloud/coding-standard to ^v1.5.0 (main) (tables#2677)](https://github.com/nextcloud/tables/pull/2677)
+* [Fix(deps): update dependency @nextcloud/dialogs to ^7.4.0 (main) (tables#2678)](https://github.com/nextcloud/tables/pull/2678)
+* [[main] Update nextcloud/ocp dependency (tables#2683)](https://github.com/nextcloud/tables/pull/2683)
+
+### Other
+* [Ci: Sync actions with main repo (tables#2601)](https://github.com/nextcloud/tables/pull/2601)
+* [Test(context): Update nav bar test for 34+ update (tables#2602)](https://github.com/nextcloud/tables/pull/2602)
+* [Test(context): Update nav bar test for 34+ update (tables#2645)](https://github.com/nextcloud/tables/pull/2645)
+* [Chore(CI): Adjust testing matrix for Nextcloud 34 on main (tables#2652)](https://github.com/nextcloud/tables/pull/2652)
+* [Fix(workflows): update server versions to include stable34 in matrix (tables#2685)](https://github.com/nextcloud/tables/pull/2685)
+
+## 2.1.1
+
+### Added
+* [Add possibility filter select/multiselect columns with dropdown(tables#2387)](https://github.com/nextcloud/tables/pull/2387)
+
+
+### Fixed
+* [Fix: Adjust date formatting(tables#2573)](https://github.com/nextcloud/tables/pull/2573)
+* [Update URL validation for text-link column(tables#2452)](https://github.com/nextcloud/tables/pull/2452)
+* [Fix: ownership(tables#2574)](https://github.com/nextcloud/tables/pull/2574)
+
+## 2.1.0
+
+### Added
+* [Reorder Application resources (tables#2245)](https://github.com/nextcloud/tables/pull/2245)
+* [🔢 Reorder and sort table columns (tables#2481)](https://github.com/nextcloud/tables/pull/2481)
+* [Feat: add permissions for public link shares (tables#2483)](https://github.com/nextcloud/tables/pull/2483)
+* [📍Option to pin a column (tables#2496)](https://github.com/nextcloud/tables/pull/2496)
+* [Mandatory column handling (tables#2511)](https://github.com/nextcloud/tables/pull/2511)
+* [🪢 Sticky header elements (tables#2527)](https://github.com/nextcloud/tables/pull/2527)
+
+### Fixed
+* [Feat: update loading shares of table (tables#2379)](https://github.com/nextcloud/tables/pull/2379)
+* [Fix: add validation for columnDto (tables#2414)](https://github.com/nextcloud/tables/pull/2414)
+* [Fix(Share): compare group id with group id, not displayname (tables#2433)](https://github.com/nextcloud/tables/pull/2433)
+* [Fix: ensure stable column order in table view (tables#2445)](https://github.com/nextcloud/tables/pull/2445)
+* [Fix: reset default values for usergroup column after row creation (tables#2448)](https://github.com/nextcloud/tables/pull/2448)
+* [Fix: It is possible to open view with removed column (tables#2449)](https://github.com/nextcloud/tables/pull/2449)
+* [Fix: replace 'circle' with 'team' in CircleHelper (fixes #2249) (tables#2455)](https://github.com/nextcloud/tables/pull/2455)
+* [Fix: Auto-focus input field for selecting a value via the column header (tables#2457)](https://github.com/nextcloud/tables/pull/2457)
+* [Fix layout issues in application view caused by missing width constraint (tables#2482)](https://github.com/nextcloud/tables/pull/2482)
+* [Error handling for CSV downloads (tables#2512)](https://github.com/nextcloud/tables/pull/2512)
+* [Reordering validation (tables#2505)](https://github.com/nextcloud/tables/pull/2505)
+* [Fix: Table sharing limitations (tables#2551)](https://github.com/nextcloud/tables/pull/2551)
+* [Fix/2555: share delete and public link access (tables#2556)](https://github.com/nextcloud/tables/pull/2556)
+
+### Dependencies
+* [Fix(deps): update dependency dompurify to ^3.3.2 (main) (tables#2392)](https://github.com/nextcloud/tables/pull/2392)
+* [Fix(deps): update dependency @nextcloud/vue to ^8.37.0 (main) (tables#2419)](https://github.com/nextcloud/tables/pull/2419)
+* [Chore(deps): update nextcloud/pr-feedback-action digest to 5227c55 (main) (tables#2431)](https://github.com/nextcloud/tables/pull/2431)
+* [Chore(deps): update shivammathur/setup-php digest to accd612 (main) (tables#2432)](https://github.com/nextcloud/tables/pull/2432)
+* [Fix: Pin cypress versions (tables#2460)](https://github.com/nextcloud/tables/pull/2460)
+* [Fix: pin stylelint-config and vue version in renovate (tables#2461)](https://github.com/nextcloud/tables/pull/2461)
+* [Chore(deps): update dependency @rollup/rollup-linux-x64-gnu to ^4.60.1 (main) (tables#2462)](https://github.com/nextcloud/tables/pull/2462)
+* [Chore(deps): update dependency @playwright/test to ^1.59.1 (main) (tables#2463)](https://github.com/nextcloud/tables/pull/2463)
+* [Chore(deps): update dependency vite to ^7.3.2 (main) (tables#2486)](https://github.com/nextcloud/tables/pull/2486)
+* [Fix(deps): update tiptap to ^3.22.3 (main) (tables#2487)](https://github.com/nextcloud/tables/pull/2487)
+* [[main] Update nextcloud/ocp dependency (tables#2491)](https://github.com/nextcloud/tables/pull/2491)
+* [[main] Fix npm audit (tables#2493)](https://github.com/nextcloud/tables/pull/2493)
+* [Chore(deps): update dependency phpunit/phpunit to v9.6.34 (tables#2500)](https://github.com/nextcloud/tables/pull/2500)
+
+### Other
+* [Ci(renovate): prevent incompatible nc/files updates on stable1.0 (tables#2381)](https://github.com/nextcloud/tables/pull/2381)
+* [Ci: fix wrong concurrency group (tables#2385)](https://github.com/nextcloud/tables/pull/2385)
+* [Feat(tests): Migrate some tests from Cypress to Playwright (tables#2427)](https://github.com/nextcloud/tables/pull/2427)
+* [Add an AGENTS.md for coding agents to respect (tables#2494)](https://github.com/nextcloud/tables/pull/2494)
+* [Sync actions with current workflow templates (tables#2495)](https://github.com/nextcloud/tables/pull/2495)
+* [Context changes (tables#2510)](https://github.com/nextcloud/tables/pull/2510)
+* [Add further guidelines for implementation logic and code checks (tables#2516)](https://github.com/nextcloud/tables/pull/2516)
+* [Build: disable renovate for EOL 0.9 (tables#2549)](https://github.com/nextcloud/tables/pull/2549)
+* [Add more rules, for frontend, backend, persistence and testing (tables#2550)](https://github.com/nextcloud/tables/pull/2550)
+
 ## 2.0.1
 
 ### Added

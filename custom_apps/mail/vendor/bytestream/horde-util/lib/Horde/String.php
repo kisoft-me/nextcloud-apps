@@ -164,10 +164,12 @@ class Horde_String
             return strtolower($string);
         }
 
+        $string = $string ?? '';
+
         if (!isset(self::$_lowers[$string])) {
             $language = setlocale(LC_CTYPE, 0);
             setlocale(LC_CTYPE, 'C');
-            self::$_lowers[$string] = $string === null ? '' : strtolower($string);
+            self::$_lowers[$string] = strtolower($string);
             setlocale(LC_CTYPE, $language);
         }
 

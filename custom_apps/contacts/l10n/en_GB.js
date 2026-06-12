@@ -129,6 +129,7 @@ OC.L10N.register(
     "An error happened while saving {fields}" : "An error happened while saving {fields}",
     "Team name" : "Team name",
     "Team owner" : "Team owner",
+    "Delete picture" : "Delete picture",
     "Edit" : "Edit",
     "Request to join" : "Request to join",
     "Create" : "Create",
@@ -152,7 +153,6 @@ OC.L10N.register(
     "Upload a new picture" : "Upload a new picture",
     "Choose from Files" : "Choose from Files",
     "Download picture" : "Download picture",
-    "Delete picture" : "Delete picture",
     "This contact is in read-only mode. You do not have permission to edit this contact." : "This contact is in read-only mode. You do not have permission to edit this contact.",
     "The contact you were trying to edit has changed. Please manually refresh the contact. Any further edits will be discarded." : "The contact you were trying to edit has changed. Please manually refresh the contact. Any further edits will be discarded.",
     "Address book" : "Address book",
@@ -195,6 +195,8 @@ OC.L10N.register(
     "Please note that only {count} of the {total} contacts can be moved" : "Please note that only {count} of the {total} contacts can be moved",
     "Move" : "Move",
     "from {addressbook}" : "from {addressbook}",
+    "Remove from favorites" : "Remove from favourites",
+    "Add to favorites" : "Add to favourites",
     "Confirm merging contacts" : "Confirm merging contacts",
     "The selected contacts have conflicting information. Choose which information to keep" : "The selected contacts have conflicting information. Choose which information to keep",
     "Contacts can be merged" : "Contacts can be merged",
@@ -295,7 +297,6 @@ OC.L10N.register(
     "Could not copy link to the clipboard." : "Could not copy link to the clipboard.",
     "Not grouped" : "Not grouped",
     "Organization chart" : "Organisation chart",
-    "Teams are groups of people that you can create yourself and with whom you can share data. They can be made up of other accounts or groups of accounts of the Nextcloud instance, but also of contacts from your address book or even external people by simply entering their e-mail addresses." : "Teams are groups of people that you can create yourself and with whom you can share data. They can be made up of other accounts or groups of accounts of the Nextcloud instance, but also of contacts from your address book or even external people by simply entering their e-mail addresses.",
     "Team" : "Team",
     "User" : "User",
     "Group" : "Group",
@@ -391,6 +392,7 @@ OC.L10N.register(
     "Value copied to the clipboard" : "Value copied to the clipboard",
     "Could not copy value to the clipboard." : "Could not copy value to the clipboard.",
     "note" : "note",
-    "email" : "email"
+    "email" : "email",
+    "Create your own groups for sharing. Add Nextcloud users, contacts, or anyone via email." : "Create your own groups for sharing. Add Nextcloud users, contacts, or anyone via email."
 },
 "nplurals=2; plural=(n != 1);");

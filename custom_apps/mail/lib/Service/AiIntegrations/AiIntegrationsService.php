@@ -19,7 +19,7 @@ use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\IMAP\IMAPClientFactory;
 use OCA\Mail\Model\EventData;
 use OCA\Mail\Model\IMAPMessage;
-use OCP\IConfig;
+use OCP\IAppConfig;
 use OCP\IL10N;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
@@ -48,7 +48,6 @@ PROMPT;
 
 	public function __construct(
 		private LoggerInterface $logger,
-		private IConfig $config,
 		private Cache $cache,
 		private IMAPClientFactory $clientFactory,
 		private IMailManager $mailManager,
@@ -57,6 +56,7 @@ PROMPT;
 		private IL10N $l,
 		private IFactory $l10nFactory,
 		private IUserManager $userManager,
+		private IAppConfig $appConfig,
 	) {
 	}
 
@@ -216,9 +216,14 @@ PROMPT;
 	 */
 	public function getSmartReply(Account $account, Mailbox $mailbox, Message $message, string $currentUserId): ?array {
 		if (in_array(FreePromptTaskType::class, $this->textProcessingManager->getAvailableTaskTypes(), true)) {
-			$cachedReplies = $this->cache->getValue('smartReplies_' . $message->getId());
+			$cachedReplies = $this->cache->getValue("smartReplies_{$message->getId()}");
 			if ($cachedReplies) {
-				return json_decode($cachedReplies, true, 512);
+				try {
+					return json_decode($cachedReplies, true, 512, JSON_THROW_ON_ERROR);
+				} catch (JsonException $e) {
+					$this->cache->remove('smartReplies_' . $message->getId());
+					throw new ServiceException('Failed to decode smart replies JSON output', previous: $e);
+				}
 			}
 			$client = $this->clientFactory->getClient($account);
 			try {
@@ -256,7 +261,7 @@ PROMPT;
 			try {
 				$cleaned = preg_replace('/^```json\s*|\s*```$/', '', trim($replies));
 				$decoded = json_decode($cleaned, true, 512, JSON_THROW_ON_ERROR);
-				$this->cache->addValue('smartReplies_' . $message->getId(), $replies);
+				$this->cache->addValue("smartReplies_{$message->getId()}", $replies);
 				return $decoded;
 			} catch (JsonException $e) {
 				throw new ServiceException('Failed to decode smart replies JSON output', previous: $e);
@@ -341,7 +346,8 @@ Never return null or undefined.";
 		}
 
 		$language = explode('_', $this->l->getLanguageCode())[0];
-		$cachedValue = $this->cache->getValue('needsTranslation_' . $language . $message->getId());
+		$messageId = $message->getId();
+		$cachedValue = $this->cache->getValue("needsTranslation_{$language}{$messageId}");
 		if ($cachedValue) {
 			return  $cachedValue === 'true' ? true : false;
 		}
@@ -397,7 +403,7 @@ Never return null or undefined.";
 		}
 		// Can't use json_decode() here because the output contains additional garbage
 		$result = preg_match('/{\s*"needsTranslation"\s*:\s*true\s*}/i', $output) === 1;
-		$this->cache->addValue('needsTranslation_' . $language . $message->getId(), $result ? 'true' : 'false');
+		$this->cache->addValue("needsTranslation_{$language}{$messageId}", $result ? 'true' : 'false');
 		return $result;
 	}
 
@@ -414,7 +420,7 @@ Never return null or undefined.";
 	 * Whether the llm_processing admin setting is enabled globally on this instance.
 	 */
 	public function isLlmProcessingEnabled(): bool {
-		return $this->config->getAppValue(Application::APP_ID, 'llm_processing', 'no') === 'yes';
+		return $this->appConfig->getValueString(Application::APP_ID, 'llm_processing', 'no') === 'yes';
 	}
 
 	private function isPersonalEmail(IMAPMessage $imapMessage): bool {

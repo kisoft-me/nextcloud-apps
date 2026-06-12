@@ -256,10 +256,10 @@ implements ArrayAccess, Countable, RecursiveIterator, Serializable
      *
      * @param string $label  The disposition parameter label.
      *
-     * @return string  The data requested.
-     *                 Returns null if $label is not set.
+     * @return ?string  The data requested.
+     *                  Returns null if $label is not set.
      */
-    public function getDispositionParameter($label)
+    public function getDispositionParameter($label): ?string
     {
         $cd = $this->_headers['content-disposition'];
         return $cd[$label];
@@ -294,14 +294,14 @@ implements ArrayAccess, Countable, RecursiveIterator, Serializable
      *                          use the default name from the description
      *                          parameter?
      *
-     * @return string  The name of the part.
+     * @return ($default is true ? string : string|null)  The name of the part.
      */
-    public function getName($default = false)
+    public function getName($default = false): ?string
     {
         if (!($name = $this->getDispositionParameter('filename')) &&
             !($name = $this->getContentTypeParameter('name')) &&
             $default) {
-            $name = preg_replace('|\W|', '_', $this->getDescription(false));
+            $name = (string) preg_replace('|\W|', '_', $this->getDescription(false));
         }
 
         return $name;
@@ -594,10 +594,10 @@ implements ArrayAccess, Countable, RecursiveIterator, Serializable
     /**
      * Get the character set to use for this part.
      *
-     * @return string  The character set of this part (lowercase). Returns
-     *                 null if there is no character set.
+     * @return ?string  The character set of this part (lowercase). Returns
+     *                  null if there is no character set.
      */
-    public function getCharset()
+    public function getCharset(): ?string
     {
         return $this->getContentTypeParameter('charset')
             ?: (($this->getPrimaryType() === 'text') ? 'us-ascii' : null);
@@ -616,10 +616,10 @@ implements ArrayAccess, Countable, RecursiveIterator, Serializable
     /**
      * Get the character set to use when outputting MIME headers.
      *
-     * @return string  The character set. If no preferred character set has
-     *                 been set, returns null.
+     * @return ?string  The character set. If no preferred character set has
+     *                  been set, returns null.
      */
-    public function getHeaderCharset()
+    public function getHeaderCharset(): ?string
     {
         return is_null($this->_hdrCharset)
             ? $this->getCharset()
@@ -676,10 +676,10 @@ implements ArrayAccess, Countable, RecursiveIterator, Serializable
      * Get the content duration of the data contained in this part (see RFC
      * 3803).
      *
-     * @return integer  The duration of the data, in seconds. Returns null if
-     *                  there is no duration information.
+     * @return ?int  The duration of the data, in seconds. Returns null if
+     *               there is no duration information.
      */
-    public function getDuration()
+    public function getDuration(): ?int
     {
         return ($hdr = $this->_headers['content-duration'])
             ? intval($hdr->value)
@@ -711,9 +711,9 @@ implements ArrayAccess, Countable, RecursiveIterator, Serializable
      * @param boolean $default  If the description parameter doesn't exist,
      *                          should we use the name of the part?
      *
-     * @return string  The description of this part.
+     * @return ($default is true ? string|null : string)  The description of this part.
      */
-    public function getDescription($default = false)
+    public function getDescription($default = false): ?string
     {
         if (($ob = $this->_headers['content-description']) &&
             strlen($ob->value)) {
@@ -810,10 +810,10 @@ implements ArrayAccess, Countable, RecursiveIterator, Serializable
      *
      * @param string $label  The content type parameter label.
      *
-     * @return string  The data requested.
-     *                 Returns null if $label is not set.
+     * @return ?string  The data requested.
+     *                  Returns null if $label is not set.
      */
-    public function getContentTypeParameter($label)
+    public function getContentTypeParameter($label): ?string
     {
         $ct = $this->_headers['content-type'];
         return $ct[$label];
@@ -1124,12 +1124,14 @@ implements ArrayAccess, Countable, RecursiveIterator, Serializable
      * Get the transfer encoding for the part based on the user requested
      * transfer encoding and the current contents of the part.
      *
-     * @param integer $encode  A mask of allowable encodings.
+     * @param int|null $encode A mask of allowable encodings.
      *
      * @return string  The transfer-encoding of this part.
      */
-    protected function _getTransferEncoding($encode = self::ENCODE_7BIT)
+    protected function _getTransferEncoding(?int $encode)
     {
+        $encode = $encode ?? self::ENCODE_7BIT;
+
         if (!empty($this->_temp['sendEncoding'])) {
             return $this->_temp['sendEncoding'];
         } elseif (!empty($this->_temp['sendTransferEncoding'][$encode])) {
@@ -1349,10 +1351,8 @@ implements ArrayAccess, Countable, RecursiveIterator, Serializable
 
     /**
      * Returns the Content-ID for this part.
-     *
-     * @return string  The Content-ID for this part (null if not set).
      */
-    public function getContentId()
+    public function getContentId(): ?string
     {
         return ($hdr = $this->_headers['content-id'])
             ? trim($hdr->value, '<>')

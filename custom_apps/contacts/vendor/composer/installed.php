@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'nextcloud/contacts',
-        'pretty_version' => 'v8.4.4',
-        'version' => '8.4.4.0',
-        'reference' => '39d653be4f3350e6c2d328b38222c123c7594140',
+        'pretty_version' => 'v8.7.0',
+        'version' => '8.7.0.0',
+        'reference' => '6dd99c9505526a9c2b2510b93488d2cb8eeb9a64',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'nextcloud/contacts' => array(
-            'pretty_version' => 'v8.4.4',
-            'version' => '8.4.4.0',
-            'reference' => '39d653be4f3350e6c2d328b38222c123c7594140',
+            'pretty_version' => 'v8.7.0',
+            'version' => '8.7.0.0',
+            'reference' => '6dd99c9505526a9c2b2510b93488d2cb8eeb9a64',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

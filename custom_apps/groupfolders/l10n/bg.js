@@ -1,6 +1,7 @@
 OC.L10N.register(
     "groupfolders",
     {
+    "Unset" : "Да не се задава",
     "Denied (Inherited permission)" : "Отказан (наследено право)",
     "Allowed (Inherited permission)" : "Позволен (наследено право)",
     "Denied" : "Отказан",
@@ -29,11 +30,11 @@ OC.L10N.register(
     "Advanced Permissions" : "Разширени права",
     "Previous" : "Предишно",
     "Next" : "Следващо",
+    "Page:" : "Страница:",
     "User" : "Потребител",
     "Unknown" : "Неизвестен",
     "None" : "Няма",
     "{size} used" : "{size} използвани",
-    "Unset" : "Да не се задава",
     "Select a user or group" : "Избор на потребител или група"
 },
 "nplurals=2; plural=(n != 1);");

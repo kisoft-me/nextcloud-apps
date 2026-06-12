@@ -61,6 +61,7 @@ OC.L10N.register(
     "Tags" : "Tibzimin",
     "Task created" : "Tawuri tettwarna",
     "Not found" : "Ulac-it",
+    "To:" : "Ɣer:",
     "Translate from" : "Suqel seg",
     "Translate to" : "Suqel ar",
     "Deleted" : "Yettwakkes",
@@ -75,8 +76,6 @@ OC.L10N.register(
     "All" : "Akk",
     "Inbox" : "Tanaka",
     "Nextcloud Mail" : "Imayl n Nextcloud",
-    "Message sent" : "Izen yettwazen",
-    "Continue to %s" : "Kemmel ar %s",
-    "Last 7 days" : "7 n wussan yezrin"
+    "Message sent" : "Izen yettwazen"
 },
 "nplurals=2; plural=(n != 1);");

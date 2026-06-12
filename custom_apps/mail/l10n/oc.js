@@ -45,6 +45,7 @@ OC.L10N.register(
     "Choose" : "Causir",
     "Choose a file to add as attachment" : "Causissètz un fichièr de jónher al messatge",
     "Confirm" : "Confirmar",
+    "Revoke" : "Revocar",
     "No messages" : "Cap de messatge",
     "Tomorrow – {timeLocale}" : "Deman – {timeLocale}",
     "Favorite" : "Favorit",
@@ -89,6 +90,7 @@ OC.L10N.register(
     "Tags" : "Etiquetas",
     "Custom" : "Personalizats",
     "Not found" : "Non trobat",
+    "To:" : "Al :",
     "Translate message" : "Traduire lo messatge",
     "Translating" : "Traduccion",
     "Untitled event" : "Eveniment sens títol",
@@ -122,7 +124,6 @@ OC.L10N.register(
     "Error while sharing file" : "Error pendent lo partiment del fichièr",
     "{from}\n{subject}" : "{from}\n{subject}",
     "Message sent" : "Messatge mandat",
-    "Error loading message" : "Error al moment del cargament del messatge",
-    "Continue to %s" : "Contunhar cap a %s"
+    "Error loading message" : "Error al moment del cargament del messatge"
 },
 "nplurals=2; plural=(n > 1);");

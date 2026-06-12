@@ -19,6 +19,9 @@ use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\IMAP\MessageMapper;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @psalm-api
+ */
 class MigrateImportantFromImapAndDb {
 
 
@@ -51,7 +54,7 @@ class MigrateImportantFromImapAndDb {
 			try {
 				$this->messageMapper->addFlag($client, $mailbox, $uids, Tag::LABEL_IMPORTANT);
 			} catch (Horde_Imap_Client_Exception $e) {
-				$this->logger->debug('Could not flag messages in mailbox <' . $mailbox->getId() . '>');
+				$this->logger->debug("Could not flag messages in mailbox <{$mailbox->getId()}>");
 				throw new ServiceException($e->getMessage(), 0, $e);
 			}
 		}
@@ -64,7 +67,7 @@ class MigrateImportantFromImapAndDb {
 			try {
 				$this->messageMapper->addFlag($client, $mailbox, $uids, Tag::LABEL_IMPORTANT);
 			} catch (Horde_Imap_Client_Exception $e) {
-				$this->logger->debug('Could not flag messages in mailbox <' . $mailbox->getId() . '>');
+				$this->logger->debug("Could not flag messages in mailbox <{$mailbox->getId()}>");
 				throw new ServiceException($e->getMessage(), 0, $e);
 			}
 		}

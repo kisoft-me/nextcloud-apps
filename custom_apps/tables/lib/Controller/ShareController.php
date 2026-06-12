@@ -10,10 +10,13 @@ namespace OCA\Tables\Controller;
 use OCA\Tables\AppInfo\Application;
 use OCA\Tables\Middleware\Attribute\RequirePermission;
 use OCA\Tables\Service\ShareService;
+use OCA\Tables\Service\ValueObject\ShareCreate;
+use OCA\Tables\Service\ValueObject\ShareToken;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
+use OCP\Share\IManager as ShareManager;
 use Psr\Log\LoggerInterface;
 
 class ShareController extends Controller {
@@ -21,25 +24,36 @@ class ShareController extends Controller {
 
 	private string $userId;
 
+	private ShareManager $shareManager;
+
 	protected LoggerInterface $logger;
 
 	use Errors;
-
 
 	public function __construct(
 		IRequest $request,
 		LoggerInterface $logger,
 		ShareService $service,
+		ShareManager $shareManager,
 		string $userId) {
 		parent::__construct(Application::APP_ID, $request);
 		$this->logger = $logger;
 		$this->service = $service;
+		$this->shareManager = $shareManager;
 		$this->userId = $userId;
 	}
 
+	#[NoAdminRequired]
+	public function sharePolicy(): DataResponse {
+		$canShare = !$this->shareManager->sharingDisabledForUser($this->userId);
+		return new DataResponse([
+			'canShare' => $canShare,
+			'canShareLink' => $canShare && $this->shareManager->shareApiAllowLinks(),
+		]);
+	}
 
 	#[NoAdminRequired]
-	#[RequirePermission(permission: Application::PERMISSION_READ, type: Application::NODE_TYPE_TABLE, idParam: 'tableId')]
+	#[RequirePermission(permission: Application::PERMISSION_MANAGE, type: Application::NODE_TYPE_TABLE, idParam: 'tableId')]
 	public function index(int $tableId): DataResponse {
 		return $this->handleError(function () use ($tableId) {
 			$shares = $this->service->findAll('table', $tableId);
@@ -48,7 +62,7 @@ class ShareController extends Controller {
 	}
 
 	#[NoAdminRequired]
-	#[RequirePermission(permission: Application::PERMISSION_READ, type: Application::NODE_TYPE_VIEW, idParam: 'viewId')]
+	#[RequirePermission(permission: Application::PERMISSION_MANAGE, type: Application::NODE_TYPE_VIEW, idParam: 'viewId')]
 	public function indexView(int $viewId): DataResponse {
 		return $this->handleError(function () use ($viewId) {
 			$shares = $this->service->findAll('view', $viewId);
@@ -76,16 +90,44 @@ class ShareController extends Controller {
 		bool $permissionDelete = false,
 		bool $permissionManage = false,
 		int $displayMode = Application::NAV_ENTRY_MODE_ALL,
+		?string $password = null,
+		?string $shareToken = null,
 	): DataResponse {
-		return $this->handleError(function () use ($nodeId, $nodeType, $receiver, $receiverType, $permissionRead, $permissionCreate, $permissionUpdate, $permissionDelete, $permissionManage, $displayMode) {
-			return $this->service->create($nodeId, $nodeType, $receiver, $receiverType, $permissionRead, $permissionCreate, $permissionUpdate, $permissionDelete, $permissionManage, $displayMode);
+		$shareTokenObject = $shareToken !== null ? new ShareToken($shareToken) : null;
+		$dto = new ShareCreate(
+			$nodeId, $nodeType, $receiver, $receiverType,
+			$permissionRead, $permissionCreate, $permissionUpdate,
+			$permissionDelete, $permissionManage, $displayMode,
+			$password, $shareTokenObject,
+		);
+
+		return $this->handleError(function () use ($dto) {
+			return $this->service->create($dto);
 		});
 	}
 
 	#[NoAdminRequired]
 	public function updatePermission(int $id, string $permission, bool $value): DataResponse {
 		return $this->handleError(function () use ($id, $permission, $value) {
-			return $this->service->updatePermission($id, $permission, $value);
+			return $this->service->updatePermission($id, [$permission => $value]);
+		});
+	}
+
+	#[NoAdminRequired]
+	public function updatePermissions(
+		int $id,
+		bool $permissionRead = false,
+		bool $permissionCreate = false,
+		bool $permissionUpdate = false,
+		bool $permissionDelete = false,
+	): DataResponse {
+		return $this->handleError(function () use ($id, $permissionRead, $permissionCreate, $permissionUpdate, $permissionDelete) {
+			return $this->service->updatePermission($id, [
+				'read' => $permissionRead,
+				'create' => $permissionCreate,
+				'update' => $permissionUpdate && $permissionRead,
+				'delete' => $permissionDelete && $permissionRead,
+			]);
 		});
 	}
 

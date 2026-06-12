@@ -52,10 +52,10 @@ class Horde_Mime_Mdn
     /**
      * Returns the address(es) to return the MDN to.
      *
-     * @return string  The address(es) to send the MDN to. Returns null if no
-     *                 MDN is requested.
+     * @return ?string  The address(es) to send the MDN to. Returns null if no
+     *                  MDN is requested.
      */
-    public function getMdnReturnAddr()
+    public function getMdnReturnAddr(): ?string
     {
         /* RFC 3798 [2.1] requires the Disposition-Notification-To header
          * for an MDN to be created. */

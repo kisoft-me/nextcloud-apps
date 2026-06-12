@@ -488,7 +488,8 @@ class Horde_Mime_Mail
      * @param  boolean $stream  If true, return a stream resource, otherwise
      *                          a string is returned.
      *
-     * @return resource|string  The raw email data.
+     * @return ($stream is true ? resource : string)  The raw email data.
+     * @throws Horde_Mail_Exception if no base part set
      * @since 2.4.0
      */
     public function getRaw($stream = true)
@@ -510,6 +511,7 @@ class Horde_Mime_Mail
      * Return the base MIME part.
      *
      * @return Horde_Mime_Part
+     * @throws Horde_Mail_Exception if no base part set
      */
     public function getBasePart()
     {

@@ -158,6 +158,7 @@ OC.L10N.register(
     "Expand composer" : "Expandează mesajul",
     "Close composer" : "Închide mesajul",
     "Confirm" : "Confirmă",
+    "Revoke" : "Revocă",
     "Tag: {name} deleted" : "Eticheta: {name} a fost ștearsă",
     "An error occurred, unable to delete the tag." : "Eticheta nu a putut fi ștearsă.",
     "The tag will be deleted from all messages." : "Eticheta va fi ștearsă pentru toate mesajele.",
@@ -405,6 +406,7 @@ OC.L10N.register(
     "Reply to sender only" : "Răspunde doar expeditorului",
     "Mark as unfavorite" : "Elimină de la favorite",
     "Mark as favorite" : "Marchează ca favorit",
+    "To:" : "Catre:",
     "Unsubscribe via link" : "Dezabonare prin link",
     "Unsubscribing will stop all messages from the mailing list {sender}" : "Dezabonare va opri mesajele din lista de distribuție {sender}",
     "Send unsubscribe email" : "Trimite email de dezabonare",
@@ -487,14 +489,6 @@ OC.L10N.register(
     "Could not load your message" : "Mesajul nu s-a putut încărca",
     "Could not load the desired message" : "Nu s-a putut încărca mesajul dorit",
     "Could not load the message" : "Nu s-a putut încărca mesajul",
-    "Error loading message" : "Eroare la încărcarea mesajelor",
-    "Forwarding to %s" : "Retransmitere la %s",
-    "Click here if you are not automatically redirected within the next few seconds." : "Faceți click aici dacă nu sunteți redirectat automat în câteva secunde.",
-    "Redirect" : "Deviere",
-    "The link leads to %s" : "Link-ul duce la %s",
-    "If you do not want to visit that page, you can return to <a href=\"%s\">Mail</a>." : "Dacă nu doriți să vizitați acea pagină, vă puteți întoarce la <a href=\"%s\">Mail</a>.",
-    "Continue to %s" : "Continuă către %s",
-    "Messages will automatically be marked as important based on which messages you interacted with or marked as important. In the beginning you might have to manually change the importance to teach the system, but it will improve over time." : "Mesajul va fi marcat automat ca important în funcție de mesajele cu care ați interacționat sau pe care le-ați marcat ca importante. La început ar trebui să setați manual importanța pentru antrenarea sistemului, dar aceasta se va îmbunătăți în timp.",
-    "Last 7 days" : "Ultimele 7 zile"
+    "Error loading message" : "Eroare la încărcarea mesajelor"
 },
 "nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));");
