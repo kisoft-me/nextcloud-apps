@@ -1,0 +1,7 @@
+SPDX-License-Identifier: AGPLv3
+SPDX-FileCopyrightText: Raimund Schlüßler
+
+This file is generated from multiple sources. Included packages:
+- tasks
+	- version: 0.17.1
+	- license: AGPLv3

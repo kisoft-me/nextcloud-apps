@@ -1,0 +1,12 @@
+SPDX-License-Identifier: AGPLv3
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: Raimund Schlüßler
+SPDX-FileCopyrightText: Rob Cresswell <robcresswell@pm.me>
+
+This file is generated from multiple sources. Included packages:
+- tasks
+	- version: 0.17.1
+	- license: AGPLv3
+- vue-material-design-icons
+	- version: 5.3.1
+	- license: MIT
